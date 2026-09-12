@@ -1,0 +1,14 @@
+﻿{
+  "name": "ridelink-microservices-root",
+  "version": "1.0.0",
+  "description": "Monorepo root for RideLink 4 Microservices (IT3130)",
+  "private": true,
+  "scripts": {
+    "install:all": "cd services/account-service && npm install && cd ../driver-service && npm install && cd ../ride-service && npm install && cd ../payment-service && npm install",
+    "test:account": "cd services/account-service && npm test",
+    "test:driver": "cd services/driver-service && npm test",
+    "test:ride": "cd services/ride-service && npm test",
+    "test:payment": "cd services/payment-service && npm test",
+    "test:all": "npm run test:account && npm run test:driver && npm run test:ride && npm run test:payment"
+  }
+}

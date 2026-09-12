@@ -1,0 +1,130 @@
+﻿{
+  "info": {
+    "_postman_id": "ridelink-collection-it3130",
+    "name": "RideLink API Collection (IT3130)",
+    "description": "Postman API test suite for RideLink 4 Microservices (IT3130 AD Assignment).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Account Service (Port 5001)",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{account_service_url}}/health"
+          }
+        },
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Kamal Perera\",\n  \"email\": \"kamal@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"phone\": \"+94771234567\",\n  \"role\": \"PASSENGER\"\n}"
+            },
+            "url": "{{account_service_url}}/api/v1/auth/register"
+          }
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"kamal@example.com\",\n  \"password\": \"SecurePass123!\"\n}"
+            },
+            "url": "{{account_service_url}}/api/v1/auth/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Driver & Vehicle Service (Port 5002)",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{driver_service_url}}/health"
+          }
+        },
+        {
+          "name": "Update Driver Status",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"AVAILABLE\"\n}"
+            },
+            "url": "{{driver_service_url}}/api/v1/drivers/drv_xyz789/status"
+          }
+        },
+        {
+          "name": "Query Eligible Drivers",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pickupLat\": 6.9271,\n  \"pickupLng\": 79.8612,\n  \"vehicleType\": \"CAR\",\n  \"maxRadiusKm\": 5.0\n}"
+            },
+            "url": "{{driver_service_url}}/api/v1/drivers/query-eligible"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Ride Management Service (Port 5003)",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{ride_service_url}}/health"
+          }
+        },
+        {
+          "name": "Create Ride Request",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passengerId\": \"usr_abc123\",\n  \"pickupLocation\": {\"name\": \"SLIIT\", \"lat\": 6.9147, \"lng\": 79.9729},\n  \"destinationLocation\": {\"name\": \"Kaduwela\", \"lat\": 6.9344, \"lng\": 79.9840},\n  \"vehicleType\": \"CAR\"\n}"
+            },
+            "url": "{{ride_service_url}}/api/v1/rides"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Fare & Payment Service (Port 5004)",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{payment_service_url}}/health"
+          }
+        },
+        {
+          "name": "Estimate Fare",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"distanceKm\": 3.5,\n  \"estimatedMinutes\": 15\n}"
+            },
+            "url": "{{payment_service_url}}/api/v1/fares/estimate"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+﻿{
+  "id": "ridelink-env-local",
+  "name": "RideLink Local Environment",
+  "values": [
+    { "key": "account_service_url", "value": "http://localhost:5001", "enabled": true },
+    { "key": "driver_service_url", "value": "http://localhost:5002", "enabled": true },
+    { "key": "ride_service_url", "value": "http://localhost:5003", "enabled": true },
+    { "key": "payment_service_url", "value": "http://localhost:5004", "enabled": true },
+    { "key": "jwt_token", "value": "", "enabled": true }
+  ]
+}
