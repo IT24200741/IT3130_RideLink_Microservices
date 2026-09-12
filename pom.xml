@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.ridelink</groupId>
+	<artifactId>ridelink-parent</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>RideLink Microservices Platform</name>
+	<description>IT3130 Application Development - Microservices Backend</description>
+
+	<modules>
+		<module>services/account-service</module>
+		<module>services/driver-service</module>
+		<module>services/ride-service</module>
+		<module>services/payment-service</module>
+	</modules>
+
+	<properties>
+		<java.version>17</java.version>
+		<spring.boot.version>3.4.3</spring.boot.version>
+	</properties>
+</project>

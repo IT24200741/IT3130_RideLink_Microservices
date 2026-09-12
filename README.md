@@ -1,11 +1,13 @@
-# 🚗 RideLink · Backend Microservices for On-Demand Ride-Sharing
+# 🚗 RideLink · Java Spring Boot Microservices for On-Demand Ride-Sharing
 
 [![Course](https://img.shields.io/badge/Course-IT3130%20Application%20Development-blue.svg)](https://courseweb.sliit.lk)
-[![Architecture](https://img.shields.io/badge/Architecture-Microservices-orange.svg)](#system-architecture)
+[![Framework](https://img.shields.io/badge/Framework-Spring%20Boot%203.4.3-brightgreen.svg)](#prerequisites)
+[![Java](https://img.shields.io/badge/Java-JDK%2017-orange.svg)](#prerequisites)
+[![Architecture](https://img.shields.io/badge/Architecture-Microservices-purple.svg)](#system-architecture)
 [![Database](https://img.shields.io/badge/Pattern-Database--per--Service-green.svg)](#database-isolation)
 [![Target Deadline](https://img.shields.io/badge/Deadline-Oct%2001%2C%202026-red.svg)](#project-schedule)
 
-**RideLink** is a distributed backend platform for a ride-sharing ecosystem. It is composed of four loosely coupled, independently deployable microservices communicating via lightweight synchronous REST APIs, strictly adhering to the **Database-per-Service** architectural pattern.
+**RideLink** is a distributed backend platform for a ride-sharing ecosystem developed for **IT3130 Application Development**. It is composed of four loosely coupled, independently deployable **Java Spring Boot microservices** communicating via lightweight synchronous REST APIs, strictly adhering to the **Database-per-Service** architectural pattern with isolated H2 databases.
 
 ---
 
@@ -15,10 +17,10 @@ Each team member is exclusively responsible for the design, implementation, auto
 
 | # | Microservice | Port | Owner & Student ID | Key Responsibilities |
 |---|---|---|---|---|
-| **1** | **Account Service** | `5001` | **Sasiru** (`IT24200741`) | Passenger & Driver registration, BCrypt password hashing, JWT token authentication, Role-based access control (Passenger, Driver, Admin), profile management. |
-| **2** | **Driver & Vehicle Service** | `5002` | **Randi Sithma** (`IT24104341`) | Driver operational profiles, vehicle registration, Availability status toggle (`AVAILABLE`, `BUSY`, `OFFLINE`), simulated GPS tracking, driver discovery query. |
-| **3** | **Ride Management Service** | `5003` | **Bhanuka** (`IT24103298`) | Ride lifecycle orchestrator (`REQUESTED` -> `ACCEPTED` -> `IN_PROGRESS` -> `COMPLETED`), dispatching to Driver Service, status state machine validation. |
-| **4** | **Fare & Payment Service** | `5004` | **Nethmini Perera** (`IT24104027`) | Fare estimation algorithm (Base + Distance + Time), final fare calculation upon ride completion, payment simulation (Success/Failed), digital receipt generation. |
+| **1** | **Account Service** | `8080` | **Sasiru** (`IT24200741`) | Passenger & Driver registration, BCrypt password hashing, JWT token authentication, Role-based access control (Passenger, Driver, Admin), profile management. |
+| **2** | **Driver & Vehicle Service** | `8081` | **Randi Sithma** (`IT24104341`) | Driver operational profiles, vehicle registration, Availability status toggle (`AVAILABLE`, `BUSY`, `OFFLINE`), simulated GPS tracking, driver discovery query. |
+| **3** | **Ride Management Service** | `8082` | **Bhanuka** (`IT24103298`) | Ride lifecycle orchestrator (`REQUESTED` -> `ACCEPTED` -> `IN_PROGRESS` -> `COMPLETED`), dispatching to Driver Service, status state machine validation. |
+| **4** | **Fare & Payment Service** | `8083` | **Nethmini Perera** (`IT24104027`) | Fare estimation algorithm (Base + Distance + Time), final fare calculation upon ride completion, payment simulation (Success/Failed), digital receipt generation. |
 
 ---
 
@@ -28,24 +30,24 @@ Each team member is exclusively responsible for the design, implementation, auto
 flowchart TD
     Client["Client / Postman / Swagger UI"]
     
-    subgraph S1["1. Account Service (Port 5001)"]
+    subgraph S1["1. Account Service (Port 8080)"]
         Sasiru["Sasiru (IT24200741)"]
-        DB1[("Users DB")]
+        DB1[("Users H2 DB")]
     end
     
-    subgraph S3["3. Ride Management Service (Port 5003)"]
+    subgraph S3["3. Ride Management Service (Port 8082)"]
         Bhanuka["Bhanuka (IT24103298)"]
-        DB3[("Rides DB")]
+        DB3[("Rides H2 DB")]
     end
     
-    subgraph S2["2. Driver and Vehicle Service (Port 5002)"]
+    subgraph S2["2. Driver and Vehicle Service (Port 8081)"]
         Randi["Randi Sithma (IT24104341)"]
-        DB2[("Drivers DB")]
+        DB2[("Drivers H2 DB")]
     end
     
-    subgraph S4["4. Fare and Payment Service (Port 5004)"]
+    subgraph S4["4. Fare and Payment Service (Port 8083)"]
         Nethmini["Nethmini Perera (IT24104027)"]
-        DB4[("Payments DB")]
+        DB4[("Payments H2 DB")]
     end
 
     Client -->|REST API| S1
@@ -57,17 +59,17 @@ flowchart TD
 ```
 
 ### 🗄️ Database-per-Service Isolation Rule
-- **Strict Isolation:** Each microservice has its own isolated database instance/schema.
+- **Strict Isolation:** Each microservice has its own isolated in-memory/persistent H2 database instance (`accountdb`, `driverdb`, `ridedb`, `paymentdb`).
 - **Zero Cross-DB Access:** Direct cross-database SQL queries, multi-database transactions, or foreign joins are **strictly forbidden**.
-- **API Communication Only:** Services exchange state exclusively through documented JSON REST endpoints.
+- **API Communication Only:** Services exchange state exclusively through documented JSON REST endpoints using Spring's `RestClient`.
 
 ---
 
 ## 🚀 Quick Start & Local Setup
 
 ### 1. Prerequisites
-- **Node.js**: `>= 18.x` (Version 18 or higher)
-- **npm**: `>= 9.x` (Version 9 or higher)
+- **Java**: `JDK 17` (OpenJDK 17 / Eclipse Temurin)
+- **Maven**: Maven Wrapper (`mvnw` and `mvnw.cmd`) included in the project root
 - **Postman**: For API testing and demonstration
 - **Git**: Configured with your SLIIT university email and ID
 
@@ -77,59 +79,49 @@ git clone https://github.com/IT24200741/IT3130_RideLink_Microservices.git
 cd IT3130_RideLink_Microservices
 ```
 
-### 3. Environment Setup
-Copy the sample environment file to each service:
+### 3. Build & Compile All Services
+Using the included Maven Wrapper:
 ```bash
-cp services/account-service/.env.example services/account-service/.env
-cp services/driver-service/.env.example services/driver-service/.env
-cp services/ride-service/.env.example services/ride-service/.env
-cp services/payment-service/.env.example services/payment-service/.env
+# Windows
+.\mvnw.cmd clean compile
+
+# macOS / Linux
+./mvnw clean compile
 ```
 
-### 4. Install Dependencies & Start Services
+### 4. Run Individual Microservices
 
-Open 4 separate terminal windows:
+Open 4 separate terminal windows or run using Maven:
 
 ```bash
-# Terminal 1: Account Service (Port 5001 - Sasiru IT24200741)
-cd services/account-service
-npm install
-npm run dev
+# Terminal 1: Account Service (Port 8080 - Sasiru IT24200741)
+.\mvnw.cmd spring-boot:run -pl services/account-service
 
-# Terminal 2: Driver & Vehicle Service (Port 5002 - Randi Sithma IT24104341)
-cd services/driver-service
-npm install
-npm run dev
+# Terminal 2: Driver & Vehicle Service (Port 8081 - Randi Sithma IT24104341)
+.\mvnw.cmd spring-boot:run -pl services/driver-service
 
-# Terminal 3: Ride Management Service (Port 5003 - Bhanuka IT24103298)
-cd services/ride-service
-npm install
-npm run dev
+# Terminal 3: Ride Management Service (Port 8082 - Bhanuka IT24103298)
+.\mvnw.cmd spring-boot:run -pl services/ride-service
 
-# Terminal 4: Fare & Payment Service (Port 5004 - Nethmini Perera IT24104027)
-cd services/payment-service
-npm install
-npm run dev
+# Terminal 4: Fare & Payment Service (Port 8083 - Nethmini Perera IT24104027)
+.\mvnw.cmd spring-boot:run -pl services/payment-service
 ```
 
 ---
 
 ## 🧪 Automated Unit Testing (Rubric I2: 3 Marks)
 
-Each microservice includes an automated unit test suite with positive and negative test cases:
+Each microservice includes an automated unit test suite with positive and negative test cases using **JUnit 5** and **Spring Boot Test**:
 
 ```bash
-# Run tests for Account Service (Sasiru IT24200741)
-cd services/account-service && npm test
+# Run tests for all 4 services at once
+.\mvnw.cmd test
 
-# Run tests for Driver Service (Randi Sithma IT24104341)
-cd services/driver-service && npm test
-
-# Run tests for Ride Service (Bhanuka IT24103298)
-cd services/ride-service && npm test
-
-# Run tests for Payment Service (Nethmini Perera IT24104027)
-cd services/payment-service && npm test
+# Or run tests for a specific service:
+.\mvnw.cmd test -pl services/account-service
+.\mvnw.cmd test -pl services/driver-service
+.\mvnw.cmd test -pl services/ride-service
+.\mvnw.cmd test -pl services/payment-service
 ```
 
 ---
@@ -141,16 +133,16 @@ Import the provided Postman collection located in `/postman`:
 2. `RideLink_Local_Environment.json`
 
 ### Recommended Happy Path Execution Order:
-1. **Account Service**: Register & Login Passenger (`POST /api/v1/auth/register`) -> Extracts JWT Token.
-2. **Account Service**: Register & Login Driver (`POST /api/v1/auth/register`).
-3. **Driver Service**: Create Driver Profile & Set Status `AVAILABLE` (`PATCH /api/v1/drivers/:id/status`).
-4. **Driver Service**: Update current GPS location (`PATCH /api/v1/drivers/:id/location`).
-5. **Fare Service**: Estimate Ride Fare (`POST /api/v1/fares/estimate`).
-6. **Ride Service**: Create Ride Request (`POST /api/v1/rides`).
-7. **Ride Service**: Discover & Assign Driver (`POST /api/v1/rides/:id/assign`).
-8. **Ride Service**: Update ride status to `IN_PROGRESS` -> `COMPLETED`.
-9. **Payment Service**: Process Ride Payment (`POST /api/v1/payments/process`).
-10. **Payment Service**: Get Receipt (`GET /api/v1/payments/:id/receipt`).
+1. **Account Service (`:8080`)**: Register & Login Passenger (`POST /api/v1/auth/register`) -> Extracts JWT Token.
+2. **Account Service (`:8080`)**: Register & Login Driver (`POST /api/v1/auth/register`).
+3. **Driver Service (`:8081`)**: Create Driver Profile & Set Status `AVAILABLE` (`PATCH /api/v1/drivers/:id/status`).
+4. **Driver Service (`:8081`)**: Update current GPS location (`PATCH /api/v1/drivers/:id/location`).
+5. **Fare Service (`:8083`)**: Estimate Ride Fare (`POST /api/v1/fares/estimate`).
+6. **Ride Service (`:8082`)**: Create Ride Request (`POST /api/v1/rides`).
+7. **Ride Service (`:8082`)**: Discover & Assign Driver (`POST /api/v1/rides/:id/assign`).
+8. **Ride Service (`:8082`)**: Update ride status to `IN_PROGRESS` -> `COMPLETED`.
+9. **Payment Service (`:8083`)**: Process Ride Payment (`POST /api/v1/payments/process`).
+10. **Payment Service (`:8083`)**: Get Receipt (`GET /api/v1/payments/:id/receipt`).
 
 ---
 
@@ -166,7 +158,7 @@ To ensure full individual contribution marks:
   - `feature/payment-service` (**Nethmini Perera** - `IT24104027`)
 
 ### Commit Message Conventions:
-- `feat(account): add passenger registration endpoint with bcrypt`
+- `feat(account): add passenger registration endpoint with BCrypt`
 - `fix(driver): correct driver status transition to OFFLINE`
 - `test(ride): add unit tests for ride status state machine`
 - `docs(payment): update OpenAPI specification for payment receipt`

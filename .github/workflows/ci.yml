@@ -1,4 +1,4 @@
-﻿name: RideLink Microservices CI Pipeline
+﻿name: RideLink Microservices Java CI Pipeline
 
 on:
   push:
@@ -7,29 +7,23 @@ on:
     branches: [ main, develop ]
 
 jobs:
-  test-services:
-    name: Build & Test Microservices
+  build-and-test:
+    name: Build & Test Microservices (Java 17 Spring Boot)
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        service: [account-service, driver-service, ride-service, payment-service]
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 18.x
-        uses: actions/setup-node@v4
+      - name: Set up JDK 17 (Temurin)
+        uses: actions/setup-java@v4
         with:
-          node-version: 18.x
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
 
-      - name: Install Dependencies
-        run: |
-          cd services/${{ matrix.service }}
-          npm install
+      - name: Grant Execute Permission to Maven Wrapper
+        run: chmod +x mvnw
 
-      - name: Run Automated Unit Tests
-        run: |
-          cd services/${{ matrix.service }}
-          npm test
+      - name: Build and Run Automated Tests (All 4 Services)
+        run: ./mvnw clean test

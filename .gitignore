@@ -1,56 +1,43 @@
-# ==========================================
-# RideLink IT3130 - Comprehensive .gitignore
-# ==========================================
+﻿# ===============================================
+# RideLink IT3130 - Java Spring Boot .gitignore
+# ===============================================
 
-# Dependencies
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
+# Compiled Java files
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
 
-# Environment & Secrets (NEVER COMMIT SECRETS)
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-*.pem
-*.key
-
-# Build outputs & caches
-dist/
-build/
-out/
-.next/
-*.tsbuildinfo
-coverage/
-.nyc_output/
-
-# IDE & Editor files
-.vscode/*
-!.vscode/extensions.json
-!.vscode/settings.json
-.idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# OS Generated Files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-desktop.ini
+# Maven Wrapper Exception
+!.mvn/wrapper/maven-wrapper.jar
 
 # Logs & Databases
 logs/
 *.log
 *.sqlite
 *.sqlite3
-data/
+*.db
+*.trace.db
+
+# Environment & Secrets (NEVER COMMIT SECRETS)
+.env
+.env.local
+*.pem
+*.key
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings/
+
+# OS Generated Files
+.DS_Store
+Thumbs.db
+desktop.ini
