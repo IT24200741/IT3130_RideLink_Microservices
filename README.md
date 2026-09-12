@@ -13,42 +13,48 @@
 
 Each team member is exclusively responsible for the design, implementation, automated unit testing, and documentation of one independent microservice:
 
-| # | Microservice | Port | Owner | Key Responsibilities |
+| # | Microservice | Port | Owner & Student ID | Key Responsibilities |
 |---|---|---|---|---|
-| **1** | **Account Service** | 5001 | **Sasiru** | Passenger & Driver registration, BCrypt password hashing, JWT token authentication, Role-based access control (Passenger, Driver, Admin), profile management. |
-| **2** | **Driver & Vehicle Service** | 5002 | **Randi Sithma** | Driver operational profiles, vehicle registration, Availability status toggle (AVAILABLE, BUSY, OFFLINE), simulated GPS tracking, driver discovery query. |
-| **3** | **Ride Management Service** | 5003 | **Bhanuka** | Ride lifecycle orchestrator (REQUESTED -> ACCEPTED -> IN_PROGRESS -> COMPLETED), dispatching to Driver Service, status state machine validation. |
-| **4** | **Fare & Payment Service** | 5004 | **Nethmini Perera** | Fare estimation algorithm (Base + Distance + Time), final fare calculation upon ride completion, payment simulation (Success/Failed), digital receipt generation. |
+| **1** | **Account Service** | `5001` | **Sasiru** (`IT24200741`) | Passenger & Driver registration, BCrypt password hashing, JWT token authentication, Role-based access control (Passenger, Driver, Admin), profile management. |
+| **2** | **Driver & Vehicle Service** | `5002` | **Randi Sithma** (`IT24104341`) | Driver operational profiles, vehicle registration, Availability status toggle (`AVAILABLE`, `BUSY`, `OFFLINE`), simulated GPS tracking, driver discovery query. |
+| **3** | **Ride Management Service** | `5003` | **Bhanuka** (`IT24103298`) | Ride lifecycle orchestrator (`REQUESTED` -> `ACCEPTED` -> `IN_PROGRESS` -> `COMPLETED`), dispatching to Driver Service, status state machine validation. |
+| **4** | **Fare & Payment Service** | `5004` | **Nethmini Perera** (`IT24104027`) | Fare estimation algorithm (Base + Distance + Time), final fare calculation upon ride completion, payment simulation (Success/Failed), digital receipt generation. |
 
 ---
 
 ## 🏛️ System Architecture & Service Interactions
 
-`
-                          ┌───────────────────────────┐
-                          │   Client / Postman / API  │
-                          └─────────────┬─────────────┘
-                                        │
-           ┌────────────────────────────┼────────────────────────────┐
-           │ HTTP                       │ HTTP                       │ HTTP
-           ▼                            ▼                            ▼
-┌───────────────────────┐   ┌───────────────────────┐   ┌───────────────────────┐
-│ 1. Account Service    │   │ 3. Ride Management    │   │ 4. Fare & Payment     │
-│    (Port 5001)        │   │    (Port 5003)        │   │    (Port 5004)        │
-│   [Owner: Sasiru]     │   │   [Owner: Bhanuka]    │   │ [Owner: Nethmini P.]  │
-└──────────┬────────────┘   └───────┬───────┬───────┘   └───────────┬───────────┘
-           │                        │       │                       │
-      (Users DB)                    │       └───────────────────────┤
-                                    │        Trigger payment        │
-                                    ▼        on completion     (Payments DB)
-                        ┌───────────────────────┐
-                        │ 2. Driver & Vehicle   │
-                        │    (Port 5002)        │
-                        │ [Owner: Randi Sithma] │
-                        └───────────┬───────────┘
-                                    │
-                               (Driver DB)
-`
+```mermaid
+flowchart TD
+    Client["Client / Postman / Swagger UI"]
+    
+    subgraph S1["1. Account Service (Port 5001)"]
+        Sasiru["Sasiru (IT24200741)"]
+        DB1[("Users DB")]
+    end
+    
+    subgraph S3["3. Ride Management Service (Port 5003)"]
+        Bhanuka["Bhanuka (IT24103298)"]
+        DB3[("Rides DB")]
+    end
+    
+    subgraph S2["2. Driver and Vehicle Service (Port 5002)"]
+        Randi["Randi Sithma (IT24104341)"]
+        DB2[("Drivers DB")]
+    end
+    
+    subgraph S4["4. Fare and Payment Service (Port 5004)"]
+        Nethmini["Nethmini Perera (IT24104027)"]
+        DB4[("Payments DB")]
+    end
+
+    Client -->|REST API| S1
+    Client -->|REST API| S3
+    Client -->|REST API| S4
+    
+    S3 -->|1. Query and Assign Driver| S2
+    S3 -->|2. Trigger Final Payment| S4
+```
 
 ### 🗄️ Database-per-Service Isolation Rule
 - **Strict Isolation:** Each microservice has its own isolated database instance/schema.
@@ -60,51 +66,51 @@ Each team member is exclusively responsible for the design, implementation, auto
 ## 🚀 Quick Start & Local Setup
 
 ### 1. Prerequisites
-- **Node.js**: 18.x or higher
-- **npm**: 9.x or higher
-- **Postman**: For API testing and evaluation
-- **Git**: Configured with your university email/name
+- **Node.js**: `>= 18.x` (Version 18 or higher)
+- **npm**: `>= 9.x` (Version 9 or higher)
+- **Postman**: For API testing and demonstration
+- **Git**: Configured with your SLIIT university email and ID
 
 ### 2. Clone Repository
-`ash
-git clone https://github.com/YourOrg/IT3130_GroupXX_RideLink.git
-cd IT3130_GroupXX_RideLink
-`
+```bash
+git clone https://github.com/IT24200741/IT3130_RideLink_Microservices.git
+cd IT3130_RideLink_Microservices
+```
 
 ### 3. Environment Setup
 Copy the sample environment file to each service:
-`ash
+```bash
 cp services/account-service/.env.example services/account-service/.env
 cp services/driver-service/.env.example services/driver-service/.env
 cp services/ride-service/.env.example services/ride-service/.env
 cp services/payment-service/.env.example services/payment-service/.env
-`
+```
 
 ### 4. Install Dependencies & Start Services
 
-Open 4 separate terminal windows (or run via concurrency script):
+Open 4 separate terminal windows:
 
-`ash
-# Terminal 1: Account Service (Port 5001)
+```bash
+# Terminal 1: Account Service (Port 5001 - Sasiru IT24200741)
 cd services/account-service
 npm install
 npm run dev
 
-# Terminal 2: Driver & Vehicle Service (Port 5002)
+# Terminal 2: Driver & Vehicle Service (Port 5002 - Randi Sithma IT24104341)
 cd services/driver-service
 npm install
 npm run dev
 
-# Terminal 3: Ride Management Service (Port 5003)
+# Terminal 3: Ride Management Service (Port 5003 - Bhanuka IT24103298)
 cd services/ride-service
 npm install
 npm run dev
 
-# Terminal 4: Fare & Payment Service (Port 5004)
+# Terminal 4: Fare & Payment Service (Port 5004 - Nethmini Perera IT24104027)
 cd services/payment-service
 npm install
 npm run dev
-`
+```
 
 ---
 
@@ -112,58 +118,58 @@ npm run dev
 
 Each microservice includes an automated unit test suite with positive and negative test cases:
 
-`ash
-# Run tests for Account Service
+```bash
+# Run tests for Account Service (Sasiru IT24200741)
 cd services/account-service && npm test
 
-# Run tests for Driver Service
+# Run tests for Driver Service (Randi Sithma IT24104341)
 cd services/driver-service && npm test
 
-# Run tests for Ride Service
+# Run tests for Ride Service (Bhanuka IT24103298)
 cd services/ride-service && npm test
 
-# Run tests for Payment Service
+# Run tests for Payment Service (Nethmini Perera IT24104027)
 cd services/payment-service && npm test
-`
+```
 
 ---
 
 ## 📮 Postman Collection & Evaluation Workflow (Rubric G3: 3 Marks)
 
-Import the provided Postman collection located in /postman:
-1. RideLink_API_Collection.json
-2. RideLink_Local_Environment.json
+Import the provided Postman collection located in `/postman`:
+1. `RideLink_API_Collection.json`
+2. `RideLink_Local_Environment.json`
 
 ### Recommended Happy Path Execution Order:
-1. **Account Service**: Register & Login Passenger (POST /api/v1/auth/register) -> Extracts JWT Token.
-2. **Account Service**: Register & Login Driver (POST /api/v1/auth/register).
-3. **Driver Service**: Create Driver Profile & Set Status AVAILABLE (PATCH /api/v1/drivers/:id/status).
-4. **Driver Service**: Update current GPS location (PATCH /api/v1/drivers/:id/location).
-5. **Fare Service**: Estimate Ride Fare (POST /api/v1/fares/estimate).
-6. **Ride Service**: Create Ride Request (POST /api/v1/rides).
-7. **Ride Service**: Discover & Assign Driver (POST /api/v1/rides/:id/assign).
-8. **Ride Service**: Update ride status to IN_PROGRESS -> COMPLETED.
-9. **Payment Service**: Process Ride Payment (POST /api/v1/payments/process).
-10. **Payment Service**: Get Receipt (GET /api/v1/payments/:id/receipt).
+1. **Account Service**: Register & Login Passenger (`POST /api/v1/auth/register`) -> Extracts JWT Token.
+2. **Account Service**: Register & Login Driver (`POST /api/v1/auth/register`).
+3. **Driver Service**: Create Driver Profile & Set Status `AVAILABLE` (`PATCH /api/v1/drivers/:id/status`).
+4. **Driver Service**: Update current GPS location (`PATCH /api/v1/drivers/:id/location`).
+5. **Fare Service**: Estimate Ride Fare (`POST /api/v1/fares/estimate`).
+6. **Ride Service**: Create Ride Request (`POST /api/v1/rides`).
+7. **Ride Service**: Discover & Assign Driver (`POST /api/v1/rides/:id/assign`).
+8. **Ride Service**: Update ride status to `IN_PROGRESS` -> `COMPLETED`.
+9. **Payment Service**: Process Ride Payment (`POST /api/v1/payments/process`).
+10. **Payment Service**: Get Receipt (`GET /api/v1/payments/:id/receipt`).
 
 ---
 
 ## 🌿 Git Branching Strategy (Rubric I3: 3 Marks)
 
 To ensure full individual contribution marks:
-- **main**: Production-ready, stable releases only. Protected branch.
-- **develop**: Integration branch for combining tested services.
+- **`main`**: Production-ready, stable releases only. Protected branch.
+- **`develop`**: Integration branch for combining tested services.
 - **Feature Branches**: Each member works strictly on their individual branch:
-  - eature/account-auth (Sasiru)
-  - eature/driver-management (Randi Sithma)
-  - eature/ride-lifecycle (Bhanuka)
-  - eature/fare-billing (Nethmini Perera)
+  - `feature/account-service` (**Sasiru** - `IT24200741`)
+  - `feature/driver-service` (**Randi Sithma** - `IT24104341`)
+  - `feature/ride-service` (**Bhanuka** - `IT24103298`)
+  - `feature/payment-service` (**Nethmini Perera** - `IT24104027`)
 
 ### Commit Message Conventions:
-- eat: add passenger registration endpoint with bcrypt
-- ix: correct driver status transition to OFFLINE
-- 	est: add unit tests for ride status validator
-- docs: update OpenAPI specification for payment webhook
+- `feat(account): add passenger registration endpoint with bcrypt`
+- `fix(driver): correct driver status transition to OFFLINE`
+- `test(ride): add unit tests for ride status state machine`
+- `docs(payment): update OpenAPI specification for payment receipt`
 
 ---
 

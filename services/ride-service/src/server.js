@@ -10,12 +10,12 @@ app.use(express.json());
 
 // Health Check
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'UP', service: 'Ride Management Service', owner: 'Bhanuka', port: PORT });
+  res.status(200).json({ status: 'UP', service: 'Ride Management Service', owner: 'Bhanuka (IT24103298)', port: PORT });
 });
 
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
-    console.log(`[Ride Service] Running on port ${PORT} (Owner: Bhanuka)`);
+    console.log(`[Ride Service] Running on port ${PORT} (Owner: Bhanuka (IT24103298))`);
   });
 }
 

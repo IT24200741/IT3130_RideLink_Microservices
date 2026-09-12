@@ -2,8 +2,8 @@
 
 ### 👤 Author
 - **Service Name:** [e.g. Account Service / Driver Service / Ride Service / Payment Service]
-- **Owner:** [Sasiru / Randi Sithma / Bhanuka / Nethmini Perera]
-- **Feature Branch:** [e.g. feature/account-auth]
+- **Owner:** [Sasiru (IT24200741) / Randi Sithma (IT24104341) / Bhanuka (IT24103298) / Nethmini Perera (IT24104027)]
+- **Feature Branch:** [e.g. feature/account-service]
 
 ---
 
@@ -14,10 +14,9 @@
 
 ### ✅ Quality Checklist (IT3130 Rubric Compliance)
 - [ ] **Database Isolation:** This service strictly accesses its own database. No direct cross-service queries or shared schemas.
-- [ ] **Automated Tests:** Unit test suite updated and passing with positive and negative test cases (
-pm test).
+- [ ] **Automated Tests:** Unit test suite updated and passing with positive and negative test cases (`npm test`).
 - [ ] **Error Handling:** Returns proper HTTP status codes (400, 401, 403, 404, 409, 500) with structured JSON error messages.
-- [ ] **Security:** No API keys, database credentials, or secrets committed (all loaded via .env).
+- [ ] **Security:** No API keys, database credentials, or secrets committed (all loaded via `.env`).
 - [ ] **Documentation:** Endpoints and request/response models documented according to API contracts.
 
 ---

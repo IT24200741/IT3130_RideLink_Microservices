@@ -10,12 +10,12 @@ app.use(express.json());
 
 // Health Check
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'UP', service: 'Account Service', owner: 'Sasiru', port: PORT });
+  res.status(200).json({ status: 'UP', service: 'Account Service', owner: 'Sasiru (IT24200741)', port: PORT });
 });
 
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
-    console.log(`[Account Service] Running on port ${PORT} (Owner: Sasiru)`);
+    console.log(`[Account Service] Running on port ${PORT} (Owner: Sasiru (IT24200741))`);
   });
 }
 

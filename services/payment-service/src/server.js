@@ -10,12 +10,12 @@ app.use(express.json());
 
 // Health Check
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'UP', service: 'Fare & Payment Service', owner: 'Nethmini Perera', port: PORT });
+  res.status(200).json({ status: 'UP', service: 'Fare & Payment Service', owner: 'Nethmini Perera (IT24104027)', port: PORT });
 });
 
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
-    console.log(`[Payment Service] Running on port ${PORT} (Owner: Nethmini Perera)`);
+    console.log(`[Payment Service] Running on port ${PORT} (Owner: Nethmini Perera (IT24104027))`);
   });
 }
 

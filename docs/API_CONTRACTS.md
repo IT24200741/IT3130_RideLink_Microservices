@@ -1,10 +1,10 @@
-﻿# RideLink · Inter-Service API Contracts & Specifications
+# RideLink · Inter-Service API Contracts & Specifications
 
 This document defines the official synchronous REST API contracts between RideLink's 4 microservices. All services must strictly adhere to these JSON schemas and HTTP response codes.
 
 ---
 
-## 1. Account Service (Port: 5001 · Owner: Sasiru)
+## 1. Account Service (Port: 5001 · Owner: Sasiru · IT24200741)
 
 ### 1.1 Register User
 - **Method:** `POST`
@@ -59,7 +59,7 @@ This document defines the official synchronous REST API contracts between RideLi
 
 ---
 
-## 2. Driver & Vehicle Service (Port: 5002 · Owner: Randi Sithma)
+## 2. Driver & Vehicle Service (Port: 5002 · Owner: Randi Sithma · IT24104341)
 
 ### 2.1 Update Driver Status
 - **Method:** `PATCH`
@@ -121,7 +121,7 @@ This document defines the official synchronous REST API contracts between RideLi
 
 ---
 
-## 3. Ride Management Service (Port: 5003 · Owner: Bhanuka)
+## 3. Ride Management Service (Port: 5003 · Owner: Bhanuka · IT24103298)
 
 ### 3.1 Request a Ride
 - **Method:** `POST`
@@ -180,7 +180,7 @@ This document defines the official synchronous REST API contracts between RideLi
 
 ---
 
-## 4. Fare & Payment Service (Port: 5004 · Owner: Nethmini Perera)
+## 4. Fare & Payment Service (Port: 5004 · Owner: Nethmini Perera · IT24104027)
 
 ### 4.1 Estimate Fare
 - **Method:** `POST`

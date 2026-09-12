@@ -10,12 +10,12 @@ app.use(express.json());
 
 // Health Check
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'UP', service: 'Driver & Vehicle Service', owner: 'Randi Sithma', port: PORT });
+  res.status(200).json({ status: 'UP', service: 'Driver & Vehicle Service', owner: 'Randi Sithma (IT24104341)', port: PORT });
 });
 
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
-    console.log(`[Driver Service] Running on port ${PORT} (Owner: Randi Sithma)`);
+    console.log(`[Driver Service] Running on port ${PORT} (Owner: Randi Sithma (IT24104341))`);
   });
 }
 
