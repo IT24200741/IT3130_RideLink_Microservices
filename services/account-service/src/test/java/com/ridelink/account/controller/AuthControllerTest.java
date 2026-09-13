@@ -97,6 +97,27 @@ class AuthControllerTest {
     }
 
     @Test
+    void loginUser_SuspendedAccount_ReturnsForbidden() throws Exception {
+        RegisterRequest register = new RegisterRequest("Sunil Perera", "sunil@example.com", "Secret123", "+94771234567", Role.PASSENGER);
+        mockMvc.perform(post("/api/v1/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(register)))
+                .andExpect(status().isCreated());
+
+        com.ridelink.account.model.User user = userRepository.findByEmail("sunil@example.com").orElseThrow();
+        user.setStatus(com.ridelink.account.model.AccountStatus.SUSPENDED);
+        userRepository.save(user);
+
+        LoginRequest login = new LoginRequest("sunil@example.com", "Secret123");
+
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(login)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
     void healthCheck_ReturnsUp() throws Exception {
         mockMvc.perform(get("/health"))
                 .andExpect(status().isOk())

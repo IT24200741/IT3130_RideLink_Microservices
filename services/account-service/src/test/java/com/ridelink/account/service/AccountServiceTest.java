@@ -3,7 +3,9 @@ package com.ridelink.account.service;
 import com.ridelink.account.dto.AuthResponse;
 import com.ridelink.account.dto.LoginRequest;
 import com.ridelink.account.dto.RegisterRequest;
+import com.ridelink.account.dto.UpdateProfileRequest;
 import com.ridelink.account.dto.UserResponse;
+import com.ridelink.account.model.AccountStatus;
 import com.ridelink.account.model.Role;
 import com.ridelink.account.model.User;
 import com.ridelink.account.repository.UserRepository;
@@ -54,6 +56,7 @@ class AccountServiceTest {
         assertEquals("USR-1", response.getUserId());
         assertEquals("kamal@example.com", response.getEmail());
         assertEquals(Role.PASSENGER, response.getRole());
+        assertEquals(AccountStatus.ACTIVE, response.getStatus());
         verify(userRepository, times(1)).save(any(User.class));
     }
 
@@ -94,6 +97,49 @@ class AccountServiceTest {
         when(passwordEncoder.matches("WrongPassword", "hashedPassword")).thenReturn(false);
 
         assertThrows(ResponseStatusException.class, () -> accountService.login(request));
+    }
+
+    @Test
+    void login_SuspendedAccount_ThrowsForbidden() {
+        LoginRequest request = new LoginRequest("kamal@example.com", "Password123");
+        User user = new User("Kamal Perera", "kamal@example.com", "hashedPassword", "+94771234567", Role.PASSENGER);
+        user.setId(1L);
+        user.setStatus(AccountStatus.SUSPENDED);
+
+        when(userRepository.findByEmail("kamal@example.com")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("Password123", "hashedPassword")).thenReturn(true);
+
+        assertThrows(ResponseStatusException.class, () -> accountService.login(request));
+    }
+
+    @Test
+    void updateProfile_Success() {
+        User user = new User("Kamal Perera", "kamal@example.com", "hashedPassword", "+94771234567", Role.PASSENGER);
+        user.setId(1L);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
+
+        UpdateProfileRequest updateReq = new UpdateProfileRequest("Kamal Silva", "+94779998888");
+        UserResponse response = accountService.updateProfile(1L, updateReq);
+
+        assertNotNull(response);
+        assertEquals("Kamal Silva", response.getName());
+        assertEquals("+94779998888", response.getPhone());
+    }
+
+    @Test
+    void updateStatus_Success() {
+        User user = new User("Kamal Perera", "kamal@example.com", "hashedPassword", "+94771234567", Role.PASSENGER);
+        user.setId(1L);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
+
+        UserResponse response = accountService.updateStatus(1L, AccountStatus.SUSPENDED);
+
+        assertNotNull(response);
+        assertEquals(AccountStatus.SUSPENDED, response.getStatus());
     }
 
     @Test

@@ -12,6 +12,7 @@ public class UserResponse {
     private String email;
     private String phone;
     private Role role;
+    private com.ridelink.account.model.AccountStatus status;
     private LocalDateTime createdAt;
 
     public UserResponse() {
@@ -23,6 +24,7 @@ public class UserResponse {
         this.email = user.getEmail();
         this.phone = user.getPhone();
         this.role = user.getRole();
+        this.status = user.getStatus();
         this.createdAt = user.getCreatedAt();
     }
 
@@ -64,6 +66,14 @@ public class UserResponse {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public com.ridelink.account.model.AccountStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(com.ridelink.account.model.AccountStatus status) {
+        this.status = status;
     }
 
     public LocalDateTime getCreatedAt() {

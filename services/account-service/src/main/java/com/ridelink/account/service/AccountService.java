@@ -3,7 +3,9 @@ package com.ridelink.account.service;
 import com.ridelink.account.dto.AuthResponse;
 import com.ridelink.account.dto.LoginRequest;
 import com.ridelink.account.dto.RegisterRequest;
+import com.ridelink.account.dto.UpdateProfileRequest;
 import com.ridelink.account.dto.UserResponse;
+import com.ridelink.account.model.AccountStatus;
 import com.ridelink.account.model.User;
 import com.ridelink.account.repository.UserRepository;
 import org.springframework.http.HttpStatus;
@@ -53,6 +55,10 @@ public class AccountService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
         }
 
+        if (user.getStatus() == AccountStatus.SUSPENDED) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account is suspended. Please contact support.");
+        }
+
         String tokenPayload = user.getId() + ":" + user.getEmail() + ":" + System.currentTimeMillis();
         String token = Base64.getUrlEncoder().withoutPadding().encodeToString(tokenPayload.getBytes(StandardCharsets.UTF_8));
 
@@ -68,6 +74,30 @@ public class AccountService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with ID: " + id));
         return new UserResponse(user);
+    }
+
+    public UserResponse updateProfile(Long id, UpdateProfileRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with ID: " + id));
+
+        if (request.getName() != null && !request.getName().isBlank()) {
+            user.setName(request.getName());
+        }
+        if (request.getPhone() != null) {
+            user.setPhone(request.getPhone());
+        }
+
+        User updatedUser = userRepository.save(user);
+        return new UserResponse(updatedUser);
+    }
+
+    public UserResponse updateStatus(Long id, AccountStatus status) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with ID: " + id));
+
+        user.setStatus(status);
+        User updatedUser = userRepository.save(user);
+        return new UserResponse(updatedUser);
     }
 
     public List<UserResponse> getAllUsers() {

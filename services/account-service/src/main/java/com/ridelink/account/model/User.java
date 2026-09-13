@@ -35,6 +35,10 @@ public class User {
     @Column(nullable = false)
     private Role role = Role.PASSENGER;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AccountStatus status = AccountStatus.ACTIVE;
+
     private LocalDateTime createdAt;
 
     public User() {
@@ -101,6 +105,14 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public AccountStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(AccountStatus status) {
+        this.status = status;
     }
 
     public LocalDateTime getCreatedAt() {
