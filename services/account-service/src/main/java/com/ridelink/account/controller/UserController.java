@@ -5,17 +5,15 @@ import com.ridelink.account.dto.UpdateProfileRequest;
 import com.ridelink.account.dto.UpdateStatusRequest;
 import com.ridelink.account.dto.UserResponse;
 import com.ridelink.account.service.AccountService;
-import com.ridelink.account.model.Role;
-import com.ridelink.account.service.TokenService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -27,11 +25,9 @@ import java.util.List;
 public class UserController {
 
     private final AccountService accountService;
-    private final TokenService tokenService;
 
-    public UserController(AccountService accountService, TokenService tokenService) {
+    public UserController(AccountService accountService) {
         this.accountService = accountService;
-        this.tokenService = tokenService;
     }
 
     private Long parseUserId(String id) {
@@ -59,13 +55,15 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<UserResponse>> updateProfile(
             @PathVariable String id,
-            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            Authentication authentication,
             @Valid @RequestBody UpdateProfileRequest request) {
         Long targetUserId = parseUserId(id);
 
-        if (authHeader != null && !authHeader.isBlank()) {
-            TokenService.TokenClaims claims = tokenService.validateAndParseToken(authHeader);
-            if (!claims.getUserId().equals(targetUserId) && claims.getRole() != Role.ADMIN) {
+        if (authentication != null && authentication.getPrincipal() instanceof Long currentUserId) {
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+            if (!currentUserId.equals(targetUserId) && !isAdmin) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to update another user's profile");
             }
         }
@@ -77,17 +75,8 @@ public class UserController {
     @PatchMapping("/{id}/status")
     public ResponseEntity<ApiResponse<UserResponse>> updateStatus(
             @PathVariable String id,
-            @RequestHeader(value = "Authorization", required = false) String authHeader,
             @Valid @RequestBody UpdateStatusRequest request) {
         Long targetUserId = parseUserId(id);
-
-        if (authHeader != null && !authHeader.isBlank()) {
-            TokenService.TokenClaims claims = tokenService.validateAndParseToken(authHeader);
-            if (claims.getRole() != Role.ADMIN) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only administrators can modify account status");
-            }
-        }
-
         UserResponse response = accountService.updateStatus(targetUserId, request.getStatus());
         return ResponseEntity.ok(ApiResponse.ok("Account status updated successfully", response));
     }
