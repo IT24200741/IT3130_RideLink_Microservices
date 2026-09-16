@@ -8,13 +8,13 @@ import com.ridelink.account.dto.UserResponse;
 import com.ridelink.account.model.AccountStatus;
 import com.ridelink.account.model.User;
 import com.ridelink.account.repository.UserRepository;
+import com.ridelink.account.model.Role;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.List;
 
 @Service
@@ -22,13 +22,19 @@ public class AccountService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TokenService tokenService;
 
-    public AccountService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AccountService(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenService tokenService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.tokenService = tokenService;
     }
 
     public UserResponse register(RegisterRequest request) {
+        if (request.getRole() == Role.ADMIN) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Self-registration as ADMIN is not permitted. Only PASSENGER and DRIVER roles can self-register.");
+        }
+
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email is already registered");
         }
@@ -43,7 +49,13 @@ public class AccountService {
                 request.getRole()
         );
 
-        User savedUser = userRepository.save(user);
+        User savedUser;
+        try {
+            savedUser = userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email is already registered");
+        }
+
         return new UserResponse(savedUser);
     }
 
@@ -59,8 +71,7 @@ public class AccountService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account is suspended. Please contact support.");
         }
 
-        String tokenPayload = user.getId() + ":" + user.getEmail() + ":" + System.currentTimeMillis();
-        String token = Base64.getUrlEncoder().withoutPadding().encodeToString(tokenPayload.getBytes(StandardCharsets.UTF_8));
+        String token = tokenService.generateToken(user.getId(), user.getEmail(), user.getRole());
 
         return new AuthResponse(
                 token,

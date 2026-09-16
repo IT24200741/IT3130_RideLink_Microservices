@@ -124,4 +124,15 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.status").value("UP"))
                 .andExpect(jsonPath("$.service").value("account-service"));
     }
+
+    @Test
+    void registerUser_AdminRole_ReturnsBadRequest() throws Exception {
+        RegisterRequest request = new RegisterRequest("Malicious Admin", "admin@example.com", "Secret123", "+94771234567", Role.ADMIN);
+
+        mockMvc.perform(post("/api/v1/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
+    }
 }

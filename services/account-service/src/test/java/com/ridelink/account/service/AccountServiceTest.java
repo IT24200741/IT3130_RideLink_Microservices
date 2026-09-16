@@ -33,10 +33,12 @@ class AccountServiceTest {
     private PasswordEncoder passwordEncoder;
 
     private AccountService accountService;
+    private TokenService tokenService;
 
     @BeforeEach
     void setUp() {
-        accountService = new AccountService(userRepository, passwordEncoder);
+        tokenService = new TokenService();
+        accountService = new AccountService(userRepository, passwordEncoder, tokenService);
     }
 
     @Test
@@ -147,5 +149,13 @@ class AccountServiceTest {
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(ResponseStatusException.class, () -> accountService.getUserById(99L));
+    }
+
+    @Test
+    void register_AdminRole_ThrowsException() {
+        RegisterRequest request = new RegisterRequest("Admin User", "admin@example.com", "AdminPass123", "+94771234567", Role.ADMIN);
+
+        assertThrows(ResponseStatusException.class, () -> accountService.register(request));
+        verify(userRepository, never()).save(any(User.class));
     }
 }
