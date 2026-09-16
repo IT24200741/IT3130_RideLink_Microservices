@@ -1,4 +1,4 @@
-﻿# RideLink Â· Inter-Service API Contracts & Specifications
+# RideLink Â· Inter-Service API Contracts & Specifications
 
 This document defines the official synchronous REST API contracts between RideLink's 4 microservices. All services must strictly adhere to these JSON schemas and HTTP response codes.
 
@@ -50,9 +50,79 @@ This document defines the official synchronous REST API contracts between RideLi
   "success": true,
   "data": {
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "userId": "usr_abc123",
+    "userId": "USR-1",
     "role": "PASSENGER",
     "expiresIn": 86400
+  }
+}
+```
+
+### 1.3 View User Profile
+- **Method:** `GET`
+- **Path:** `/api/v1/users/:id`
+- **Success Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "userId": "USR-1",
+    "name": "Kamal Perera",
+    "email": "kamal@example.com",
+    "phone": "+94771234567",
+    "role": "PASSENGER",
+    "status": "ACTIVE",
+    "createdAt": "2026-09-15T10:00:00"
+  }
+}
+```
+
+### 1.4 Update User Profile
+- **Method:** `PUT`
+- **Path:** `/api/v1/users/:id`
+- **Request Body:**
+```json
+{
+  "name": "Kamal Perera Updated",
+  "phone": "+94779876543"
+}
+```
+- **Success Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Profile updated successfully",
+  "data": {
+    "userId": "USR-1",
+    "name": "Kamal Perera Updated",
+    "email": "kamal@example.com",
+    "phone": "+94779876543",
+    "role": "PASSENGER",
+    "status": "ACTIVE",
+    "createdAt": "2026-09-15T10:00:00"
+  }
+}
+```
+
+### 1.5 Account Status Management (Activate / Suspend)
+- **Method:** `PATCH`
+- **Path:** `/api/v1/users/:id/status`
+- **Request Body:**
+```json
+{
+  "status": "SUSPENDED"
+}
+```
+- **Success Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Account status updated successfully",
+  "data": {
+    "userId": "USR-1",
+    "name": "Kamal Perera",
+    "email": "kamal@example.com",
+    "role": "PASSENGER",
+    "status": "SUSPENDED"
   }
 }
 ```
