@@ -30,7 +30,7 @@ public class UserController {
         this.accountService = accountService;
     }
 
-    private Long parseUserId(String id) {
+    private String parseUserId(String id) {
         if (id == null || id.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User ID cannot be empty");
         }
@@ -38,16 +38,15 @@ public class UserController {
         if (cleanId.toUpperCase().startsWith("USR-")) {
             cleanId = cleanId.substring(4);
         }
-        try {
-            return Long.parseLong(cleanId);
-        } catch (NumberFormatException e) {
+        if (cleanId.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid user ID format: " + id);
         }
+        return cleanId;
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable String id) {
-        Long userId = parseUserId(id);
+        String userId = parseUserId(id);
         UserResponse response = accountService.getUserById(userId);
         return ResponseEntity.ok(ApiResponse.ok(response));
     }
@@ -57,9 +56,9 @@ public class UserController {
             @PathVariable String id,
             Authentication authentication,
             @Valid @RequestBody UpdateProfileRequest request) {
-        Long targetUserId = parseUserId(id);
+        String targetUserId = parseUserId(id);
 
-        if (authentication != null && authentication.getPrincipal() instanceof Long currentUserId) {
+        if (authentication != null && authentication.getPrincipal() instanceof String currentUserId) {
             boolean isAdmin = authentication.getAuthorities().stream()
                     .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
@@ -76,7 +75,7 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserResponse>> updateStatus(
             @PathVariable String id,
             @Valid @RequestBody UpdateStatusRequest request) {
-        Long targetUserId = parseUserId(id);
+        String targetUserId = parseUserId(id);
         UserResponse response = accountService.updateStatus(targetUserId, request.getStatus());
         return ResponseEntity.ok(ApiResponse.ok("Account status updated successfully", response));
     }

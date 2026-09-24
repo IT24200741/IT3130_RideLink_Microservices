@@ -4,6 +4,7 @@ import com.ridelink.account.dto.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -37,7 +38,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiResponse<Void>> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
-        log.warn("Data integrity violation: {}", ex.getMessage());
+        log.warn("Data integrity or duplicate key violation: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(ApiResponse.error("A record with this identifier or unique field already exists"));

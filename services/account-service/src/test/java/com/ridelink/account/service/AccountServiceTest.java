@@ -49,7 +49,7 @@ class AccountServiceTest {
         when(passwordEncoder.encode("Password123")).thenReturn("hashedPassword");
 
         User savedUser = new User("Kamal Perera", "kamal@example.com", "hashedPassword", "+94771234567", Role.PASSENGER);
-        savedUser.setId(1L);
+        savedUser.setId("1");
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
 
         UserResponse response = accountService.register(request);
@@ -76,7 +76,7 @@ class AccountServiceTest {
     void login_Success() {
         LoginRequest request = new LoginRequest("kamal@example.com", "Password123");
         User user = new User("Kamal Perera", "kamal@example.com", "hashedPassword", "+94771234567", Role.PASSENGER);
-        user.setId(1L);
+        user.setId("1");
 
         when(userRepository.findByEmail("kamal@example.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("Password123", "hashedPassword")).thenReturn(true);
@@ -93,7 +93,7 @@ class AccountServiceTest {
     void login_InvalidPassword_ThrowsException() {
         LoginRequest request = new LoginRequest("kamal@example.com", "WrongPassword");
         User user = new User("Kamal Perera", "kamal@example.com", "hashedPassword", "+94771234567", Role.PASSENGER);
-        user.setId(1L);
+        user.setId("1");
 
         when(userRepository.findByEmail("kamal@example.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("WrongPassword", "hashedPassword")).thenReturn(false);
@@ -105,7 +105,7 @@ class AccountServiceTest {
     void login_SuspendedAccount_ThrowsForbidden() {
         LoginRequest request = new LoginRequest("kamal@example.com", "Password123");
         User user = new User("Kamal Perera", "kamal@example.com", "hashedPassword", "+94771234567", Role.PASSENGER);
-        user.setId(1L);
+        user.setId("1");
         user.setStatus(AccountStatus.SUSPENDED);
 
         when(userRepository.findByEmail("kamal@example.com")).thenReturn(Optional.of(user));
@@ -117,13 +117,13 @@ class AccountServiceTest {
     @Test
     void updateProfile_Success() {
         User user = new User("Kamal Perera", "kamal@example.com", "hashedPassword", "+94771234567", Role.PASSENGER);
-        user.setId(1L);
+        user.setId("1");
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findById("1")).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
 
         UpdateProfileRequest updateReq = new UpdateProfileRequest("Kamal Silva", "+94779998888");
-        UserResponse response = accountService.updateProfile(1L, updateReq);
+        UserResponse response = accountService.updateProfile("1", updateReq);
 
         assertNotNull(response);
         assertEquals("Kamal Silva", response.getName());
@@ -133,12 +133,12 @@ class AccountServiceTest {
     @Test
     void updateStatus_Success() {
         User user = new User("Kamal Perera", "kamal@example.com", "hashedPassword", "+94771234567", Role.PASSENGER);
-        user.setId(1L);
+        user.setId("1");
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findById("1")).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
 
-        UserResponse response = accountService.updateStatus(1L, AccountStatus.SUSPENDED);
+        UserResponse response = accountService.updateStatus("1", AccountStatus.SUSPENDED);
 
         assertNotNull(response);
         assertEquals(AccountStatus.SUSPENDED, response.getStatus());
@@ -146,9 +146,9 @@ class AccountServiceTest {
 
     @Test
     void getUserById_NotFound_ThrowsException() {
-        when(userRepository.findById(99L)).thenReturn(Optional.empty());
+        when(userRepository.findById("99")).thenReturn(Optional.empty());
 
-        assertThrows(ResponseStatusException.class, () -> accountService.getUserById(99L));
+        assertThrows(ResponseStatusException.class, () -> accountService.getUserById("99"));
     }
 
     @Test

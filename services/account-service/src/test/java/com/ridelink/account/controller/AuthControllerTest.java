@@ -18,22 +18,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-class AuthControllerTest {
+import com.ridelink.account.BaseIntegrationTest;
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private UserRepository userRepository;
+class AuthControllerTest extends BaseIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        userRepository.deleteAll();
+        super.setupDatabaseMock();
     }
 
     @Test

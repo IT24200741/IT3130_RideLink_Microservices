@@ -10,6 +10,7 @@ import com.ridelink.account.model.User;
 import com.ridelink.account.repository.UserRepository;
 import com.ridelink.account.model.Role;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -81,13 +82,13 @@ public class AccountService {
         );
     }
 
-    public UserResponse getUserById(Long id) {
+    public UserResponse getUserById(String id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with ID: " + id));
         return new UserResponse(user);
     }
 
-    public UserResponse updateProfile(Long id, UpdateProfileRequest request) {
+    public UserResponse updateProfile(String id, UpdateProfileRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with ID: " + id));
 
@@ -102,7 +103,7 @@ public class AccountService {
         return new UserResponse(updatedUser);
     }
 
-    public UserResponse updateStatus(Long id, AccountStatus status) {
+    public UserResponse updateStatus(String id, AccountStatus status) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with ID: " + id));
 
