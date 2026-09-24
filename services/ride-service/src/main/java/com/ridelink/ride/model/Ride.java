@@ -95,7 +95,7 @@ public class Ride {
         return destinationLocation;
     }
 
-    public void setDestination(Location destinationLocation) {
+    public void setDestinationLocation(Location destinationLocation) {
         this.destinationLocation = destinationLocation;
     }
 

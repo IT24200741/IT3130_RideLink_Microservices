@@ -1,9 +1,11 @@
 package com.ridelink.ride.controller;
 
-import com.ridelink.ride.model.Ride;
-import java.util.Map;
-import com.ridelink.ride.model.RideStatus;
+import com.ridelink.ride.dto.ApiResponse;
+import com.ridelink.ride.dto.CreateRideRequest;
+import com.ridelink.ride.dto.RideResponse;
+import com.ridelink.ride.dto.UpdateStatusRequest;
 import com.ridelink.ride.service.RideService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,31 +25,34 @@ public class RideController {
         this.rideService = rideService;
     }
 
-    @PostMapping
-    public ResponseEntity<Ride> createRide(@RequestBody Ride ride) {
-        Ride createdRide = rideService.createRide(ride);
-        return new ResponseEntity<>(createdRide, HttpStatus.CREATED);
+      @PostMapping
+    public ResponseEntity<ApiResponse<RideResponse>> createRide(@Valid @RequestBody CreateRideRequest request) {
+        RideResponse createdRide = rideService.createRide(request);
+        return new ResponseEntity<>(
+            ApiResponse.success("Ride requested successfully", createdRide),
+            HttpStatus.CREATED
+        );
     }
 
-    @GetMapping
-    public ResponseEntity<List<Ride>> getAllRides() {
-        List<Ride> rides = rideService.getAllRides();
-        return ResponseEntity.ok(rides);
+       @GetMapping
+    public ResponseEntity<ApiResponse<List<RideResponse>>> getAllRides() {
+        List<RideResponse> rides = rideService.getAllRides();
+        return ResponseEntity.ok(ApiResponse.success(rides));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Ride> getRideById(@PathVariable Long id) {
-        return rideService.getRideById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<ApiResponse<RideResponse>> getRideById(@PathVariable Long id) {
+        RideResponse ride = rideService.getRideById(id);
+        return ResponseEntity.ok(ApiResponse.success(ride));
     }
 
     @PatchMapping("/{id}/status")
-    public ResponseEntity<Ride> updateRideStatus(
+    public ResponseEntity<ApiResponse<RideResponse>> updateRideStatus(
             @PathVariable Long id,
-            @RequestBody Map<String, String> request) {
-        String status = request.get("status");
-        Ride updatedRide = rideService.updateRideStatus(id, RideStatus.valueOf(status));
-        return ResponseEntity.ok(updatedRide);
+            @Valid @RequestBody UpdateStatusRequest request) {
+        RideResponse updatedRide = rideService.updateRideStatus(id, request.getStatus());
+        return ResponseEntity.ok(
+            ApiResponse.success("Ride status updated successfully", updatedRide)
+        );
     }
 }
