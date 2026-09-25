@@ -10,7 +10,6 @@ import com.ridelink.account.model.User;
 import com.ridelink.account.repository.UserRepository;
 import com.ridelink.account.model.Role;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -36,17 +35,18 @@ public class AccountService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Self-registration as ADMIN is not permitted. Only PASSENGER and DRIVER roles can self-register.");
         }
 
-        if (userRepository.existsByEmail(request.getEmail())) {
+        String normalizedEmail = request.getEmail().trim().toLowerCase();
+        if (userRepository.existsByEmail(normalizedEmail)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email is already registered");
         }
 
         String hashedPassword = passwordEncoder.encode(request.getPassword());
 
         User user = new User(
-                request.getName(),
-                request.getEmail(),
+                request.getName().trim(),
+                normalizedEmail,
                 hashedPassword,
-                request.getPhone(),
+                request.getPhone() != null ? request.getPhone().trim() : null,
                 request.getRole()
         );
 
@@ -61,7 +61,8 @@ public class AccountService {
     }
 
     public AuthResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
+        String normalizedEmail = request.getEmail().trim().toLowerCase();
+        User user = userRepository.findByEmail(normalizedEmail)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {

@@ -62,7 +62,8 @@ public class UserController {
             boolean isAdmin = authentication.getAuthorities().stream()
                     .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
-            if (!currentUserId.equals(targetUserId) && !isAdmin) {
+            String normalizedCurrentUserId = parseUserId(currentUserId);
+            if (!normalizedCurrentUserId.equals(targetUserId) && !isAdmin) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to update another user's profile");
             }
         }

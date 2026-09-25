@@ -21,7 +21,10 @@ public class UserResponse {
 
     public UserResponse(User user) {
         this.id = user.getId();
-        this.userId = "USR-" + user.getId();
+        if (user.getId() != null) {
+            String clean = user.getId().trim();
+            this.userId = clean.toUpperCase().startsWith("USR-") ? clean : "USR-" + clean;
+        }
         this.name = user.getName();
         this.email = user.getEmail();
         this.phone = user.getPhone();
