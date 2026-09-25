@@ -75,9 +75,13 @@ public class AccountService {
 
         String token = tokenService.generateToken(user.getId(), user.getEmail(), user.getRole());
 
+        String formattedUserId = user.getId() != null && user.getId().toUpperCase().startsWith("USR-")
+                ? user.getId()
+                : "USR-" + user.getId();
+
         return new AuthResponse(
                 token,
-                "USR-" + user.getId(),
+                formattedUserId,
                 user.getRole(),
                 86400L
         );
