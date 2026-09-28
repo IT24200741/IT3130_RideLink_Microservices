@@ -161,10 +161,10 @@ To ensure full individual contribution marks:
 - **`main`**: Production-ready, stable releases only. Protected branch.
 - **`develop`**: Integration branch for combining tested services.
 - **Feature Branches**: Each member works strictly on their individual branch:
-  - `feature/account-service` (**Sasiru** - `IT24200741`)
-  - `feature/driver-service` (**Randi Sithma** - `IT24104341`)
-  - `feature/ride-service` (**Bhanuka** - `IT24103298`)
-  - `feature/payment-service` (**Nethmini Perera** - `IT24104027`)
+  - `feature/IT24200741-account-service` (**Sasiru** - `IT24200741`)
+  - `feature/IT24104341-driver-service` (**Randi Sithma** - `IT24104341`)
+  - `feature/IT24103298-ride-service` (**Bhanuka** - `IT24103298`)
+  - `feature/IT24104027-payment-service` (**Nethmini Perera** - `IT24104027`)
 
 ---
 
