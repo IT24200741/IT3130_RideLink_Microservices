@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 public class UserResponse {
 
-    private Long id;
+    private String id;
     private String userId;
     private String name;
     private String email;
@@ -21,7 +21,10 @@ public class UserResponse {
 
     public UserResponse(User user) {
         this.id = user.getId();
-        this.userId = "USR-" + user.getId();
+        if (user.getId() != null) {
+            String clean = user.getId().trim();
+            this.userId = clean.toUpperCase().startsWith("USR-") ? clean : "USR-" + clean;
+        }
         this.name = user.getName();
         this.email = user.getEmail();
         this.phone = user.getPhone();
@@ -30,11 +33,11 @@ public class UserResponse {
         this.createdAt = user.getCreatedAt();
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

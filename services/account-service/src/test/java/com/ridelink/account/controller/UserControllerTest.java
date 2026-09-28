@@ -21,28 +21,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-class UserControllerTest {
+import com.ridelink.account.BaseIntegrationTest;
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private UserRepository userRepository;
+class UserControllerTest extends BaseIntegrationTest {
 
     @Autowired
     private TokenService tokenService;
 
     @BeforeEach
     void setUp() {
-        userRepository.deleteAll();
+        super.setupDatabaseMock();
     }
 
-    private String generateAuthHeader(Long userId, String email, Role role) {
+    private String generateAuthHeader(String userId, String email, Role role) {
         return "Bearer " + tokenService.generateToken(userId, email, role);
     }
 
@@ -107,7 +98,7 @@ class UserControllerTest {
         User user1 = userRepository.findByEmail("one@example.com").orElseThrow();
 
         // Generate token for a different user (user 999)
-        String foreignToken = generateAuthHeader(999L, "other@example.com", Role.PASSENGER);
+        String foreignToken = generateAuthHeader("999", "other@example.com", Role.PASSENGER);
 
         UpdateProfileRequest updateReq = new UpdateProfileRequest("Hacked Name", "+94770000000");
 
@@ -128,7 +119,7 @@ class UserControllerTest {
                 .andExpect(status().isCreated());
 
         User user = userRepository.findByEmail("nimal@example.com").orElseThrow();
-        String adminToken = generateAuthHeader(100L, "admin@ridelink.com", Role.ADMIN);
+        String adminToken = generateAuthHeader("100", "admin@ridelink.com", Role.ADMIN);
 
         UpdateStatusRequest statusReq = new UpdateStatusRequest(AccountStatus.SUSPENDED);
 
@@ -164,7 +155,7 @@ class UserControllerTest {
 
     @Test
     void getUserById_NotFound_Returns404() throws Exception {
-        String token = generateAuthHeader(1L, "any@example.com", Role.PASSENGER);
+        String token = generateAuthHeader("1", "any@example.com", Role.PASSENGER);
         mockMvc.perform(get("/api/v1/users/999")
                         .header("Authorization", token))
                 .andExpect(status().isNotFound())
@@ -192,7 +183,7 @@ class UserControllerTest {
 
     @Test
     void getAllUsers_WithAdminToken_Success() throws Exception {
-        String adminToken = generateAuthHeader(100L, "admin@ridelink.com", Role.ADMIN);
+        String adminToken = generateAuthHeader("100", "admin@ridelink.com", Role.ADMIN);
         mockMvc.perform(get("/api/v1/users")
                         .header("Authorization", adminToken))
                 .andExpect(status().isOk())
@@ -201,7 +192,7 @@ class UserControllerTest {
 
     @Test
     void getAllUsers_WithPassengerToken_ReturnsForbidden() throws Exception {
-        String passengerToken = generateAuthHeader(1L, "passenger@example.com", Role.PASSENGER);
+        String passengerToken = generateAuthHeader("1", "passenger@example.com", Role.PASSENGER);
         mockMvc.perform(get("/api/v1/users")
                         .header("Authorization", passengerToken))
                 .andExpect(status().isForbidden())

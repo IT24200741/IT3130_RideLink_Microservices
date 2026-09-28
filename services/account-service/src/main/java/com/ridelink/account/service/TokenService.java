@@ -29,19 +29,19 @@ public class TokenService {
     }
 
     public static class TokenClaims {
-        private final Long userId;
+        private final String userId;
         private final String email;
         private final Role role;
         private final long expiresAt;
 
-        public TokenClaims(Long userId, String email, Role role, long expiresAt) {
+        public TokenClaims(String userId, String email, Role role, long expiresAt) {
             this.userId = userId;
             this.email = email;
             this.role = role;
             this.expiresAt = expiresAt;
         }
 
-        public Long getUserId() {
+        public String getUserId() {
             return userId;
         }
 
@@ -58,7 +58,7 @@ public class TokenService {
         }
     }
 
-    public String generateToken(Long userId, String email, Role role) {
+    public String generateToken(String userId, String email, Role role) {
         long expiresAt = System.currentTimeMillis() + DEFAULT_EXPIRY_MILLIS;
         String payload = userId + ":" + email + ":" + role.name() + ":" + expiresAt;
         String encodedPayload = Base64.getUrlEncoder().withoutPadding().encodeToString(payload.getBytes(StandardCharsets.UTF_8));
@@ -95,7 +95,7 @@ public class TokenService {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token payload structure");
             }
 
-            Long userId = Long.parseLong(fields[0]);
+            String userId = fields[0];
             String email = fields[1];
             Role role = Role.valueOf(fields[2]);
             long expiresAt = Long.parseLong(fields[3]);

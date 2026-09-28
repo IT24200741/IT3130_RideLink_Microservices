@@ -1,0 +1,343 @@
+{
+  "info": {
+    "_postman_id": "account-service-complete-tests-it3130",
+    "name": "RideLink - Account Service Complete Test Suite (Port 8080)",
+    "description": "Full Positive and Negative test collection for Account & Authentication Service (Sasiru IT24200741). Covers Happy Paths, Edge Cases, Token Auth, and Error Handling (400, 401, 403, 404, 409).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8081",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "createdUserId",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Public Endpoints (No Auth Needed)",
+      "item": [
+        {
+          "name": "01. Health Check (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "02. Register Passenger - Happy Path (201 Created)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.id) {",
+                  "        pm.collectionVariables.set('createdUserId', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Kamal Perera\",\n  \"email\": \"kamal.perera@example.com\",\n  \"password\": \"Password123!\",\n  \"phone\": \"+94771234567\",\n  \"role\": \"PASSENGER\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "03. Register Driver - Happy Path (201 Created)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sunil Silva (Driver)\",\n  \"email\": \"sunil.driver@example.com\",\n  \"password\": \"DriverPass123!\",\n  \"phone\": \"+94719876543\",\n  \"role\": \"DRIVER\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "04. Login - Happy Path (200 OK + Auto-save Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.token) {",
+                  "        pm.collectionVariables.set('authToken', json.data.token);",
+                  "        console.log('Saved token successfully!');",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"kamal.perera@example.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Protected Endpoints (Requires Bearer Token)",
+      "item": [
+        {
+          "name": "05. Get Profile by Numeric ID (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/{{createdUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "{{createdUserId}}"]
+            }
+          }
+        },
+        {
+          "name": "06. Get Profile by USR- prefix ID (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/USR-{{createdUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "USR-{{createdUserId}}"]
+            }
+          }
+        },
+        {
+          "name": "07. Update Own Profile (200 OK)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Kamal Perera Updated\",\n  \"phone\": \"+94770001122\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/{{createdUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "{{createdUserId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Negative Scenarios & Error Edge Cases",
+      "item": [
+        {
+          "name": "08. Negative - Block Public Admin Registration (400 Bad Request)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Hacker Admin\",\n  \"email\": \"hacker@admin.com\",\n  \"password\": \"Admin123!\",\n  \"phone\": \"+94770000000\",\n  \"role\": \"ADMIN\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "09. Negative - Duplicate Email Registration (409 Conflict)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Duplicate User\",\n  \"email\": \"kamal.perera@example.com\",\n  \"password\": \"NewPassword123!\",\n  \"phone\": \"+94771112233\",\n  \"role\": \"PASSENGER\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "10. Negative - Login with Wrong Password (401 Unauthorized)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"kamal.perera@example.com\",\n  \"password\": \"WrongPassword!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "11. Negative - Access Profile without Token (401 Unauthorized)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "1"]
+            }
+          }
+        },
+        {
+          "name": "12. Negative - Non-Existent User ID (404 Not Found)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/9999",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "9999"]
+            }
+          }
+        },
+        {
+          "name": "13. Negative - Passenger Attempt to List All Users (403 Forbidden)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users"]
+            }
+          }
+        },
+        {
+          "name": "14. Negative - Passenger Attempt to Update Status (403 Forbidden)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"SUSPENDED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/1/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "1", "status"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

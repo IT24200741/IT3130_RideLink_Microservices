@@ -35,17 +35,18 @@ public class AccountService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Self-registration as ADMIN is not permitted. Only PASSENGER and DRIVER roles can self-register.");
         }
 
-        if (userRepository.existsByEmail(request.getEmail())) {
+        String normalizedEmail = request.getEmail().trim().toLowerCase();
+        if (userRepository.existsByEmail(normalizedEmail)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email is already registered");
         }
 
         String hashedPassword = passwordEncoder.encode(request.getPassword());
 
         User user = new User(
-                request.getName(),
-                request.getEmail(),
+                request.getName().trim(),
+                normalizedEmail,
                 hashedPassword,
-                request.getPhone(),
+                request.getPhone() != null ? request.getPhone().trim() : null,
                 request.getRole()
         );
 
@@ -60,7 +61,8 @@ public class AccountService {
     }
 
     public AuthResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
+        String normalizedEmail = request.getEmail().trim().toLowerCase();
+        User user = userRepository.findByEmail(normalizedEmail)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
@@ -73,21 +75,25 @@ public class AccountService {
 
         String token = tokenService.generateToken(user.getId(), user.getEmail(), user.getRole());
 
+        String formattedUserId = user.getId() != null && user.getId().toUpperCase().startsWith("USR-")
+                ? user.getId()
+                : "USR-" + user.getId();
+
         return new AuthResponse(
                 token,
-                "USR-" + user.getId(),
+                formattedUserId,
                 user.getRole(),
                 86400L
         );
     }
 
-    public UserResponse getUserById(Long id) {
+    public UserResponse getUserById(String id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with ID: " + id));
         return new UserResponse(user);
     }
 
-    public UserResponse updateProfile(Long id, UpdateProfileRequest request) {
+    public UserResponse updateProfile(String id, UpdateProfileRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with ID: " + id));
 
@@ -102,7 +108,7 @@ public class AccountService {
         return new UserResponse(updatedUser);
     }
 
-    public UserResponse updateStatus(Long id, AccountStatus status) {
+    public UserResponse updateStatus(String id, AccountStatus status) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with ID: " + id));
 
