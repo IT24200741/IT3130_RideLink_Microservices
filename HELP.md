@@ -1,7 +1,7 @@
 # Read Me First
 The following was discovered as part of building this project:
 
-* The original package name 'com.ridelink.driver-service' is invalid and this project uses 'com.ridelink.driver_service' instead.
+* The original package name 'com.ridelink.fare-payment-service' is invalid and this project uses 'com.ridelink.fare_payment_service' instead.
 
 # Getting Started
 
@@ -14,7 +14,8 @@ For further reference, please consider the following sections:
 * [Spring Web](https://docs.spring.io/spring-boot/4.1.1/reference/web/servlet.html)
 * [MongoDB](https://docs.spring.io/spring-boot/4.1.1/reference/data/nosql.html#data.nosql.mongodb)
 * [Validation](https://docs.spring.io/spring-boot/4.1.1/reference/io/validation.html)
-* [Spring Boot DevTools](https://docs.spring.io/spring-boot/4.1.1/reference/using/devtools.html)
+* [Spring Boot Actuator](https://docs.spring.io/spring-boot/4.1.1/reference/actuator/index.html)
+* [SpringDoc OpenAPI](https://springdoc.org/)
 
 ### Guides
 The following guides illustrate how to use some features concretely:
@@ -23,6 +24,8 @@ The following guides illustrate how to use some features concretely:
 * [Serving Web Content with Spring MVC](https://spring.io/guides/gs/serving-web-content/)
 * [Building REST services with Spring](https://spring.io/guides/tutorials/rest/)
 * [Validation](https://spring.io/guides/gs/validating-form-input/)
+* [Building a RESTful Web Service with Spring Boot Actuator](https://spring.io/guides/gs/actuator-service/)
+* [SpringDoc OpenAPI](https://github.com/springdoc/springdoc-openapi-demos/)
 
 ### Maven Parent overrides
 
