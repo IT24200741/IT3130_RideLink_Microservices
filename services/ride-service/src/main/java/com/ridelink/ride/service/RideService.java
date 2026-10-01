@@ -4,6 +4,7 @@ import com.ridelink.ride.dto.CreateRideRequest;
 import com.ridelink.ride.dto.RideResponse;
 import com.ridelink.ride.exception.InvalidRideStatusTransitionException;
 import com.ridelink.ride.exception.RideNotFoundException;
+import com.ridelink.ride.exception.UnauthorizedAccessException;
 import com.ridelink.ride.model.Location;
 import com.ridelink.ride.model.Ride;
 import com.ridelink.ride.model.RideStatus;
@@ -54,41 +55,84 @@ public class RideService {
         return RideResponse.fromEntity(savedRide);
     }
 
-      public List<RideResponse> getAllRides() {
-        return rideRepository.findAll()
-                .stream()
-                .map(RideResponse::fromEntity)
-                .collect(Collectors.toList());
+     public List<RideResponse> getRides(String callerId, String callerRole) {
+        List<Ride> rides;
+        if ("ADMIN".equalsIgnoreCase(callerRole)) {
+            rides = rideRepository.findAll();
+        } else if ("DRIVER".equalsIgnoreCase(callerRole) && callerId != null) {
+            rides = rideRepository.findByDriverID(callerId);
+        } else if (callerId != null && !callerId.isBlank()) {
+            rides = rideRepository.findByPassengerID(callerId);
+        } else {
+            rides = rideRepository.findAll();
+        }
+        return rides.stream().map(RideResponse::fromEntity).collect(Collectors.toList());
     }
-
-       public RideResponse getRideById(Long id) {
+    public List<RideResponse> getAllRides() {
+        return getRides(null, "ADMIN");
+    }
+       public RideResponse getRideById(Long id, String callerId, String callerRole) {
         Objects.requireNonNull(id, "Ride ID must not be null");
         Ride ride = rideRepository.findById(id)
                 .orElseThrow(() -> new RideNotFoundException(id));
+
+            if (callerId != null && !callerId.isBlank() && !"ADMIN".equalsIgnoreCase(callerRole)) {
+            boolean isPassenger = callerId.equals(ride.getPassengerID());
+            boolean isDriver = callerId.equals(ride.getDriverID());
+            if (!isPassenger && !isDriver) {
+                throw new UnauthorizedAccessException("You are not authorized to view this trip record.");
+            }
+        }
         return RideResponse.fromEntity(ride);
     }
+    public RideResponse getRideById(Long id) {
+         return getRideById(id, null, "ADMIN");
+    }
+   
 
-      @Transactional
-    public RideResponse updateRideStatus(Long id, RideStatus newStatus) {
+     @Transactional
+    public RideResponse updateRideStatus(Long id, RideStatus newStatus, String callerId, String callerRole) {
         Objects.requireNonNull(id, "Ride ID must not be null");
         Objects.requireNonNull(newStatus, "New status must not be null");
         Ride ride = rideRepository.findById(id)
                 .orElseThrow(() -> new RideNotFoundException(id));
-        RideStatus currentStatus = ride.getStatus();
 
-          if (!isValidTransition(currentStatus, newStatus)) {
+                RideStatus currentStatus = ride.getStatus();
+        if (!isValidTransition(currentStatus, newStatus)) {
             throw new InvalidRideStatusTransitionException(
                 "Invalid status transition: Cannot transition ride from " + currentStatus + " to " + newStatus
             );
         }
-        ride.setStatus(newStatus);
 
-         if (newStatus == RideStatus.COMPLETED) {
+         if (callerId != null && !callerId.isBlank() && !"ADMIN".equalsIgnoreCase(callerRole)) {
+            // Passenger can ONLY cancel
+            if ("PASSENGER".equalsIgnoreCase(callerRole)) {
+                if (newStatus != RideStatus.CANCELLED) {
+                    throw new UnauthorizedAccessException("Passengers are not permitted to transition rides to " + newStatus);
+                }
+                if (!callerId.equals(ride.getPassengerID())) {
+                    throw new UnauthorizedAccessException("You can only cancel your own rides.");
+                }
+            }
+
+            if ("DRIVER".equalsIgnoreCase(callerRole)) {
+                if (ride.getDriverID() != null && !callerId.equals(ride.getDriverID())) {
+                    throw new UnauthorizedAccessException("Only the assigned driver can update this ride's status.");
+                }
+            }
+        }
+        ride.setStatus(newStatus);
+        if (newStatus == RideStatus.COMPLETED) {
             ride.setCompletedAt(LocalDateTime.now());
         }
         Ride updatedRide = rideRepository.save(ride);
         return RideResponse.fromEntity(updatedRide);
     }
+    public RideResponse updateRideStatus(Long id, RideStatus newStatus) {
+        return updateRideStatus(id, newStatus, null, "ADMIN");
+    }
+
+
 
       private boolean isValidTransition(RideStatus from, RideStatus to) {
         if (from == null || to == null) {
