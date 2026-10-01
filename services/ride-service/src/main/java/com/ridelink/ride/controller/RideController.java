@@ -87,4 +87,12 @@ public class RideController {
             ApiResponse.success("Ride status updated successfully", updatedRide)
         );
     }
+
+        @PostMapping("/{id}/assign-driver")
+    public ResponseEntity<ApiResponse<RideResponse>> assignDriver(@PathVariable Long id) {
+        RideResponse assignedRide = rideService.assignDriver(id);
+        return ResponseEntity.ok(
+            ApiResponse.success("Driver assigned successfully", assignedRide)
+        );
+    }
 }

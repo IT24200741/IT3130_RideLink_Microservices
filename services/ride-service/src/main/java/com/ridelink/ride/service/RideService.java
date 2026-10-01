@@ -6,6 +6,12 @@ import com.ridelink.ride.exception.InvalidRideStatusTransitionException;
 import com.ridelink.ride.exception.RideNotFoundException;
 import com.ridelink.ride.exception.UnauthorizedAccessException;
 import com.ridelink.ride.model.Location;
+
+import com.ridelink.ride.client.DriverClient;
+import com.ridelink.ride.dto.EligibleDriverResponse;
+import com.ridelink.ride.dto.QueryEligibleDriversRequest;
+import com.ridelink.ride.exception.NoDriverAvailableException;
+
 import com.ridelink.ride.model.Ride;
 import com.ridelink.ride.model.RideStatus;
 import com.ridelink.ride.repository.RideRepository;
@@ -21,10 +27,12 @@ import java.util.stream.Collectors;
 public class RideService {
     
     private final RideRepository rideRepository;
+    private final DriverClient driverClient;
 
     @Autowired 
-    public RideService(RideRepository rideRepository) {
+    public RideService(RideRepository rideRepository, DriverClient driverClient) {
         this.rideRepository = rideRepository;
+        this.driverClient = driverClient;
     }
 
      @Transactional
@@ -87,6 +95,39 @@ public class RideService {
     }
     public RideResponse getRideById(Long id) {
          return getRideById(id, null, "ADMIN");
+    }
+
+        @Transactional
+    public RideResponse assignDriver(Long rideId) {
+        Objects.requireNonNull(rideId, "Ride ID must not be null");
+        Ride ride = rideRepository.findById(rideId)
+                .orElseThrow(() -> new RideNotFoundException(rideId));
+
+        if (ride.getStatus() != RideStatus.REQUESTED) {
+            throw new InvalidRideStatusTransitionException(
+                "Cannot assign driver to ride in status: " + ride.getStatus()
+            );
+        }
+
+        QueryEligibleDriversRequest query = new QueryEligibleDriversRequest(
+            ride.getPickupLocation().getLat(),
+            ride.getPickupLocation().getLng(),
+            ride.getVehicleType(),
+            5.0
+        );
+
+        List<EligibleDriverResponse> eligibleDrivers = driverClient.queryEligibleDrivers(query);
+
+        if (eligibleDrivers == null || eligibleDrivers.isEmpty()) {
+            throw new NoDriverAvailableException("No eligible drivers available within 5km radius");
+        }
+
+        EligibleDriverResponse selectedDriver = eligibleDrivers.get(0);
+        ride.setDriverID(selectedDriver.driverId());
+        ride.setStatus(RideStatus.ASSIGNED);
+
+        Ride updatedRide = rideRepository.save(ride);
+        return RideResponse.fromEntity(updatedRide);
     }
    
 
