@@ -14,9 +14,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/api/v1/rides")
-
+@Tag(name = "Ride Management Service", description = "Endpoints for requesting, assigning drivers, and tracking ride lifecycle states")
 public class RideController {
 
     private final RideService rideService;
@@ -42,7 +45,8 @@ public class RideController {
         return new CallerContext(userId, role);
     }
 
-      @PostMapping
+        @Operation(summary = "Request a new ride", description = "Creates a ride in REQUESTED status with auto-calculated Haversine distance")
+    @PostMapping
     public ResponseEntity<ApiResponse<RideResponse>> createRide(@Valid @RequestBody CreateRideRequest request) {
         RideResponse createdRide = rideService.createRide(request);
         return new ResponseEntity<>(
@@ -51,7 +55,8 @@ public class RideController {
         );
     }
 
-        @GetMapping
+            @Operation(summary = "Get all rides", description = "Retrieves rides filtered by caller role (passengers see own rides, drivers see assigned rides, admin sees all)")
+    @GetMapping
     public ResponseEntity<ApiResponse<List<RideResponse>>> getAllRides(
             @RequestParam(required = false) String passengerId,
             @RequestHeader(value = "Authorization", required = false) String authHeader,
@@ -63,7 +68,8 @@ public class RideController {
         return ResponseEntity.ok(ApiResponse.success(rides));
     }
 
-     @GetMapping("/{id}")
+         @Operation(summary = "Get ride by ID", description = "Fetches ride details with passenger ownership verification")
+    @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<RideResponse>> getRideById(
             @PathVariable Long id,
             @RequestHeader(value = "Authorization", required = false) String authHeader,
@@ -74,6 +80,7 @@ public class RideController {
         return ResponseEntity.ok(ApiResponse.success(ride));
     }
 
+        @Operation(summary = "Update ride status", description = "Advances the ride status following lifecycle state machine rules")
     @PatchMapping("/{id}/status")
     public ResponseEntity<ApiResponse<RideResponse>> updateRideStatus(
             @PathVariable Long id,
@@ -88,7 +95,8 @@ public class RideController {
         );
     }
 
-        @PostMapping("/{id}/assign-driver")
+            @Operation(summary = "Assign eligible driver", description = "Synchronously queries Driver Service via RestClient and assigns the nearest driver")
+    @PostMapping("/{id}/assign-driver")
     public ResponseEntity<ApiResponse<RideResponse>> assignDriver(@PathVariable Long id) {
         RideResponse assignedRide = rideService.assignDriver(id);
         return ResponseEntity.ok(
