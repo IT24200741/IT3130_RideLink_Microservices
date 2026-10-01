@@ -9,7 +9,7 @@ import java.util.List;
 @Repository 
 public interface RideRepository extends JpaRepository<Ride, Long> {
 
-    List<Ride> findByPassengerID(String passengerID);
+    List<Ride> findByPassengerId(String passengerId);
 
     List<Ride> findByDriverID(String driverID);
 

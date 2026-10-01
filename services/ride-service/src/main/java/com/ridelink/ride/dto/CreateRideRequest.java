@@ -57,7 +57,8 @@ public class CreateRideRequest {
     public String getVehicleType() {
         return vehicleType;
     }
-    public void getVehicleType(String vehicleType) {
+
+    public void setVehicleType(String vehicleType) {
         this.vehicleType = vehicleType;
     }
 

@@ -62,7 +62,7 @@ public class RideService {
         } else if ("DRIVER".equalsIgnoreCase(callerRole) && callerId != null) {
             rides = rideRepository.findByDriverID(callerId);
         } else if (callerId != null && !callerId.isBlank()) {
-            rides = rideRepository.findByPassengerID(callerId);
+            rides = rideRepository.findByPassengerId(callerId);
         } else {
             rides = rideRepository.findAll();
         }
