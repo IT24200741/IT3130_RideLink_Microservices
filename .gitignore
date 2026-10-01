@@ -1,33 +1,43 @@
-HELP.md
+﻿# ===============================================
+# RideLink IT3130 - Java Spring Boot .gitignore
+# ===============================================
+
+# Compiled Java files
 target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# Maven Wrapper Exception
+!.mvn/wrapper/maven-wrapper.jar
 
-### IntelliJ IDEA ###
-.idea
-*.iws
+# Logs & Databases
+logs/
+*.log
+*.sqlite
+*.sqlite3
+*.db
+*.trace.db
+
+# Environment & Secrets (NEVER COMMIT SECRETS)
+.env
+.env.local
+*.pem
+*.key
+
+# IDE & Editor files
+.vscode/
+.idea/
 *.iml
 *.ipr
+*.iws
+.classpath
+.project
+.settings/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
-.vscode/
+# OS Generated Files
+.DS_Store
+Thumbs.db
+desktop.ini

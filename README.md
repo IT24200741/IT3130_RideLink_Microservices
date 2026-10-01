@@ -1,278 +1,172 @@
-# 💳 RideLink — Fare & Payment Service
+# 🚗 RideLink · Java Spring Boot Microservices for On-Demand Ride-Sharing
 
-The **Fare & Payment Service** is an independent microservice in the RideLink platform responsible for calculating ride fare estimates, computing accurate final trip fares (incorporating base fare, distance, time, surge pricing, tolls, and discounts), and managing the end-to-end payment settlement lifecycle with printable digital receipts.
+[![Course](https://img.shields.io/badge/Course-IT3130%20Application%20Development-blue.svg)](https://courseweb.sliit.lk)
+[![Framework](https://img.shields.io/badge/Framework-Spring%20Boot%203.4.3-brightgreen.svg)](#prerequisites)
+[![Java](https://img.shields.io/badge/Java-JDK%2017-orange.svg)](#prerequisites)
+[![Architecture](https://img.shields.io/badge/Architecture-Microservices-purple.svg)](#system-architecture)
+[![Database](https://img.shields.io/badge/Database-MongoDB%20(Isolated%20Per%20Service)-green.svg)](#database-isolation)
+[![Target Deadline](https://img.shields.io/badge/Deadline-Oct%2001%2C%202026-red.svg)](#project-schedule)
 
----
-
-## 📌 Service Overview
-
-| Property | Details |
-|---|---|
-| **Service Name** | `fare-payment-service` |
-| **Port** | `8084` |
-| **Gateway Port** | `8080` (routes `/api/fares/**` and `/api/payments/**`) |
-| **Framework** | Spring Boot 4.1.x / Java 21 |
-| **Database** | MongoDB (Database: `ridelink_fare_payment_db`) |
-| **Architecture** | Controller ➔ Service ➔ Repository ➔ MongoDB |
-| **Interactive Docs** | Swagger UI: `http://localhost:8084/swagger-ui.html` |
-| **OpenAPI JSON** | `http://localhost:8084/v3/api-docs` |
+**RideLink** is a distributed backend platform for a ride-sharing ecosystem developed for **IT3130 Application Development**. It is composed of an API Gateway and four loosely coupled, independently deployable **Java Spring Boot microservices** communicating via lightweight synchronous REST APIs, strictly adhering to the **Database-per-Service** architectural pattern with isolated MongoDB databases (`accountdb`, `driverdb`, `ridedb`, `paymentdb`).
 
 ---
 
-## 🏛️ Architecture & Data Isolation
+## 👥 Microservice Allocation & Port Configuration
 
+Each team member is exclusively responsible for the design, implementation, automated testing, and documentation of one independent core microservice, fronted by an API Gateway:
+
+| # | Application / Microservice | Port | Owner & Student ID | Key Responsibilities |
+|---|---|---|---|---|
+| **0** | **API Gateway** | `8080` | *Joint Infrastructure* | Single Entry Point, Request Routing, Reverse Proxy, Cross-Cutting Concerns. |
+| **1** | **Account Service** | `8081` | **Sasiru** (`IT24200741`) | Passenger & Driver registration, BCrypt password hashing, JWT token authentication, Role-based access control (Passenger, Driver, Admin), profile management, account status management. |
+| **2** | **Driver & Vehicle Service** | `8082` | **Randi Sithma** (`IT24104341`) | Driver operational profiles, vehicle registration, Availability status toggle (`AVAILABLE`, `BUSY`, `OFFLINE`), simulated GPS tracking, driver discovery query. |
+| **3** | **Ride Management Service** | `8083` | **Bhanuka** (`IT24103298`) | Ride lifecycle orchestrator (`REQUESTED` -> `ACCEPTED` -> `IN_PROGRESS` -> `COMPLETED`), dispatching to Driver Service, status state machine validation. |
+| **4** | **Fare & Payment Service** | `8084` | **Nethmini Perera** (`IT24104027`) | Fare estimation algorithm (Base + Distance + Time), final fare calculation upon ride completion, payment simulation (Success/Failed), digital receipt generation. |
+
+---
+
+## 🏛️ System Architecture & Service Interactions
+
+```mermaid
+flowchart TD
+    Client["Client / Postman / Swagger UI"]
+
+    subgraph GW["API Gateway (Port 8080)"]
+        GatewayRouter["Reverse Proxy & Routing Gateway"]
+    end
+
+    subgraph S1["1. Account Service (Port 8081)"]
+        Sasiru["Sasiru (IT24200741)"]
+        DB1[("accountdb (MongoDB)")]
+    end
+    
+    subgraph S2["2. Driver and Vehicle Service (Port 8082)"]
+        Randi["Randi Sithma (IT24104341)"]
+        DB2[("driverdb (MongoDB)")]
+    end
+
+    subgraph S3["3. Ride Management Service (Port 8083)"]
+        Bhanuka["Bhanuka (IT24103298)"]
+        DB3[("ridedb (MongoDB)")]
+    end
+    
+    subgraph S4["4. Fare and Payment Service (Port 8084)"]
+        Nethmini["Nethmini Perera (IT24104027)"]
+        DB4[("paymentdb (MongoDB)")]
+    end
+
+    Client -->|HTTP REST Requests| GatewayRouter
+    
+    GatewayRouter -->|/api/v1/auth/**, /api/v1/users/**| S1
+    GatewayRouter -->|/api/v1/drivers/**| S2
+    GatewayRouter -->|/api/v1/rides/**| S3
+    GatewayRouter -->|/api/v1/fares/**, /api/v1/payments/**| S4
+    
+    S3 -->|1. Query & Assign Eligible Driver| S2
+    S3 -->|2. Trigger Final Ride Payment| S4
+    S3 -.->|Validate Passenger / Driver| S1
 ```
-                         Client / Postman / Frontend
-                                     │
-                                     ▼
-                     +───────────────────────────────+
-                     |       API GATEWAY (:8080)     |
-                     +───────────────┬───────────────+
-                                     │
-                 /api/fares/**       │     /api/payments/**
-                                     ▼
-                     +───────────────────────────────+
-                     |    FARE & PAYMENT SERVICE     |
-                     |            (:8084)            |
-                     +───────────────┬───────────────+
-                                     │
-                                     ▼
-                     +───────────────────────────────+
-                     |      MongoDB (localhost:27017)|
-                     |   DB: ridelink_fare_payment_db|
-                     |      ├── fares                |
-                     |      └── payments             |
-                     +───────────────────────────────+
+
+### 🗄️ Database-per-Service Isolation Rule (MongoDB)
+- **Strict Isolation:** In strict accordance with course rules 3 & 4, each microservice maintains its own dedicated, isolated MongoDB database instance on `localhost:27017` (`accountdb`, `driverdb`, `ridedb`, `paymentdb`).
+- **Zero Cross-DB Access:** Direct cross-database queries or shared databases across multiple microservices are **strictly prohibited**.
+- **REST Communication Only:** Services exchange state and data exclusively through documented JSON REST endpoints.
+
+---
+
+## 🚀 Quick Start & Local Setup
+
+### 1. Prerequisites
+- **Java**: `JDK 17` (OpenJDK 17 / Eclipse Temurin)
+- **MongoDB**: MongoDB Community Server 8.x running locally on default port `27017`
+- **MongoDB Compass**: For GUI database inspection
+- **Maven**: Maven Wrapper (`mvnw` and `mvnw.cmd`) included in the project root
+- **Postman**: For API verification and grading demonstration
+
+### 2. Clone Repository
+```bash
+git clone https://github.com/IT24200741/IT3130_RideLink_Microservices.git
+cd IT3130_RideLink_Microservices
 ```
 
----
+### 3. Build & Compile All Services
+Using the included Maven Wrapper:
+```bash
+# Windows
+.\mvnw.cmd clean compile
 
-## 📊 Domain Models
-
-### 1. `Fare` Collection (`fares`)
-| Field | Type | Description |
-|---|---|---|
-| `id` | `String` | MongoDB Document ID (Primary Key) |
-| `rideId` | `String` | Associated Ride ID in `ride-service` |
-| `distanceKm` | `double` | Estimated or actual distance in kilometers |
-| `durationMinutes` | `double` | Estimated or actual duration in minutes |
-| `baseFare` | `double` | Base starting charge (Fixed: `100.00 LKR`) |
-| `distanceCharge` | `double` | Distance charge (`50.00 LKR / km`) |
-| `timeCharge` | `double` | Duration charge (`5.00 LKR / min`) |
-| `surgeMultiplier` | `double` | Demand surge factor (e.g. `1.2` for peak hours) |
-| `tollCharges` | `double` | Highway / expressway tolls (e.g. `300.00 LKR`) |
-| `discountAmount` | `double` | Promo code / promotional discount |
-| `totalFare` | `double` | Final computed payable amount (LKR) |
-| `currency` | `String` | Currency code (Default: `LKR`) |
-| `fareType` | `String` | `"ESTIMATE"` or `"FINAL"` |
-| `calculatedAt` | `LocalDateTime` | Calculation timestamp |
-
-### 2. `Payment` Collection (`payments`)
-| Field | Type | Description |
-|---|---|---|
-| `id` | `String` | MongoDB Document ID (Primary Key) |
-| `rideId` | `String` | Associated Ride ID in `ride-service` |
-| `passengerId` | `String` | Passenger ID who pays |
-| `driverId` | `String` | Driver ID who receives payment |
-| `amount` | `double` | Payable amount in LKR |
-| `currency` | `String` | Currency code (`LKR`) |
-| `paymentMethod` | `PaymentMethod` | Enum: `CASH`, `CREDIT_CARD`, `DEBIT_CARD`, `WALLET` |
-| `status` | `PaymentStatus` | Enum: `PENDING`, `COMPLETED`, `FAILED`, `REFUNDED` |
-| `transactionReference` | `String` | Unique generated transaction code (e.g. `TXN-RL-8F3A29B1`) |
-| `note` | `String` | Optional payment memo / notes |
-| `createdAt` | `LocalDateTime` | Payment record created timestamp |
-| `completedAt` | `LocalDateTime` | Settlement completion timestamp |
-
----
-
-## 📡 Complete REST API Endpoints
-
-All endpoints are accessible via the **API Gateway (`http://localhost:8080`)** or directly on **Fare & Payment Service (`http://localhost:8084`)**.
-
-### 🏷️ A. Fare Calculation Endpoints (`/api/fares/**`)
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/api/fares/estimate` | Calculate initial estimated fare for a ride request |
-| `POST` | `/api/fares/final` | Calculate actual final fare upon ride completion (with tolls, discounts, surge) |
-| `GET` | `/api/fares/ride/{rideId}` | Get fare calculation breakdown for a specific ride |
-| `GET` | `/api/fares/{id}` | Get fare record by ID |
-
----
-
-### 💳 B. Payment Management Endpoints (`/api/payments/**`)
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/api/payments` | Create a pending payment request (`status = PENDING`) |
-| `POST` | `/api/payments/{id}/process` | Process / Settle payment (`PENDING` ➔ `COMPLETED` + generates TXN code) |
-| `GET` | `/api/payments/{id}` | Get payment details by ID |
-| `GET` | `/api/payments/ride/{rideId}` | Get payment record for a specific ride |
-| `GET` | `/api/payments/passenger/{passengerId}` | Get all payments made by a passenger |
-| `GET` | `/api/payments` | List all payments (supports `?status=COMPLETED` filter) |
-| `GET` | `/api/payments/{id}/receipt` | **Generate detailed digital receipt** with full fare breakdown |
-
----
-
-## 🧪 Postman Testing Walkthrough
-
-### 1. Calculate Initial Fare Estimate
-```http
-POST http://localhost:8080/api/fares/estimate
-Content-Type: application/json
-
-{
-  "rideId": "6ab5000149dadbf46a7ce800",
-  "distanceKm": 5.0,
-  "durationMinutes": 15.0
-}
+# macOS / Linux
+./mvnw clean compile
 ```
-**Response (`201 Created`):**
-```json
-{
-  "id": "6ab6000149dadbf46a7ce900",
-  "rideId": "6ab5000149dadbf46a7ce800",
-  "distanceKm": 5.0,
-  "durationMinutes": 15.0,
-  "baseFare": 100.0,
-  "distanceCharge": 250.0,
-  "timeCharge": 75.0,
-  "totalFare": 425.0,
-  "currency": "LKR"
-}
+
+### 4. Run Individual Microservices
+
+Run services in separate terminal windows:
+
+```bash
+# Terminal 1: Account Service (Port 8081 - Sasiru IT24200741)
+.\mvnw.cmd spring-boot:run -pl services/account-service
+
+# Terminal 2: Driver & Vehicle Service (Port 8082 - Randi Sithma IT24104341)
+.\mvnw.cmd spring-boot:run -pl services/driver-service
+
+# Terminal 3: Ride Management Service (Port 8083 - Bhanuka IT24103298)
+.\mvnw.cmd spring-boot:run -pl services/ride-service
+
+# Terminal 4: Fare & Payment Service (Port 8084 - Nethmini Perera IT24104027)
+.\mvnw.cmd spring-boot:run -pl services/payment-service
 ```
 
 ---
 
-### 2. Calculate Final Fare upon Trip Completion
-```http
-POST http://localhost:8080/api/fares/final
-Content-Type: application/json
+## 🧪 Automated Testing (Rubric I2: 3 Marks)
 
-{
-  "rideId": "6ab5000149dadbf46a7ce800",
-  "actualDistanceKm": 8.5,
-  "actualDurationMinutes": 22.0,
-  "surgeMultiplier": 1.2,
-  "tollCharges": 300.00,
-  "discountAmount": 50.00
-}
-```
-**Response (`201 Created`):**
-```json
-{
-  "id": "6ab6000249dadbf46a7ce910",
-  "rideId": "6ab5000149dadbf46a7ce800",
-  "distanceKm": 8.5,
-  "durationMinutes": 22.0,
-  "baseFare": 100.0,
-  "distanceCharge": 425.0,
-  "timeCharge": 110.0,
-  "surgeMultiplier": 1.2,
-  "tollCharges": 300.0,
-  "discountAmount": 50.0,
-  "totalFare": 992.0,
-  "currency": "LKR",
-  "fareType": "FINAL",
-  "calculatedAt": "2026-09-24T16:35:00"
-}
+Each microservice includes an automated unit & integration test suite with positive and negative test cases using **JUnit 5**, **Mockito**, and **Spring Boot Test**:
+
+```bash
+# Run tests for all services across the multi-module project
+.\mvnw.cmd test
+
+# Or run tests specifically for Account Service (27 Automated Tests)
+.\mvnw.cmd test -pl services/account-service
 ```
 
 ---
 
-### 3. Create a Payment Record
-```http
-POST http://localhost:8080/api/payments
-Content-Type: application/json
+## 📮 Postman Collection & Evaluation Workflow (Rubric G3: 3 Marks)
 
-{
-  "rideId": "6ab5000149dadbf46a7ce800",
-  "passengerId": "6ab4885449dadbf46a7ce771",
-  "driverId": "6ab4900149dadbf46a7ce780",
-  "amount": 992.00,
-  "paymentMethod": "CREDIT_CARD",
-  "note": "Payment for Ride #6ab5000149dadbf46a7ce800"
-}
-```
-**Response (`201 Created`):**
-```json
-{
-  "id": "6ab7000149dadbf46a7ce950",
-  "rideId": "6ab5000149dadbf46a7ce800",
-  "passengerId": "6ab4885449dadbf46a7ce771",
-  "driverId": "6ab4900149dadbf46a7ce780",
-  "amount": 992.0,
-  "currency": "LKR",
-  "paymentMethod": "CREDIT_CARD",
-  "status": "PENDING",
-  "transactionReference": null,
-  "createdAt": "2026-09-24T16:36:00"
-}
-```
+Import the test suites located in the `/postman` directory:
+1. `postman/Account_Service_Postman_Collection.json` (Full Positive and Negative test suite for Account Service with 14 automated test assertions)
+2. `postman/RideLink_API_Collection.json` & `postman/RideLink_Local_Environment.json`
+
+### Account Service Happy & Negative Path Test Cases:
+1. **Health Check (`GET /health`)** -> `200 OK`
+2. **Passenger Registration (`POST /api/v1/auth/register`)** -> `201 Created`
+3. **Driver Registration (`POST /api/v1/auth/register`)** -> `201 Created`
+4. **Duplicate Email Conflict (`POST /api/v1/auth/register`)** -> `409 Conflict`
+5. **Admin Self-Registration Block (`POST /api/v1/auth/register`)** -> `400 Bad Request`
+6. **Login Passenger (`POST /api/v1/auth/login`)** -> `200 OK` + JWT Token
+7. **Login Invalid Credentials (`POST /api/v1/auth/login`)** -> `401 Unauthorized`
+8. **Get User Profile by ID (`GET /api/v1/users/{id}`)** -> `200 OK`
+9. **Update Profile (`PUT /api/v1/users/{id}`)** -> `200 OK`
+10. **Admin Update Account Status (`PATCH /api/v1/users/{id}/status`)** -> `200 OK`
+11. **Login Suspended Account (`POST /api/v1/auth/login`)** -> `403 Forbidden`
+12. **RBAC Privilege Enforcement (`GET /api/v1/users`)** -> `403 Forbidden` for Passenger, `200 OK` for Admin
 
 ---
 
-### 4. Process / Settle Payment
-```http
-POST http://localhost:8080/api/payments/6ab7000149dadbf46a7ce950/process
-Content-Type: application/json
+## 🌿 Git Branching Strategy (Rubric I3: 3 Marks)
 
-{
-  "paymentMethod": "CREDIT_CARD",
-  "transactionNote": "Card authorized successfully"
-}
-```
-**Response (`200 OK`):**
-```json
-{
-  "id": "6ab7000149dadbf46a7ce950",
-  "rideId": "6ab5000149dadbf46a7ce800",
-  "amount": 992.0,
-  "status": "COMPLETED",
-  "transactionReference": "TXN-RL-7A9B3E1F",
-  "completedAt": "2026-09-24T16:37:00"
-}
-```
+To ensure full individual contribution marks:
+- **`main`**: Production-ready, stable releases only. Protected branch.
+- **`develop`**: Integration branch for combining tested services.
+- **Feature Branches**: Each member works strictly on their individual branch:
+  - `feature/account-service` (**Sasiru** - `IT24200741`)
+  - `feature/driver-service` (**Randi Sithma** - `IT24104341`)
+  - `feature/ride-service` (**Bhanuka** - `IT24103298`)
+  - `feature/payment-service` (**Nethmini Perera** - `IT24104027`)
 
 ---
 
-### 5. Generate Digital Payment Receipt
-```http
-GET http://localhost:8080/api/payments/6ab7000149dadbf46a7ce950/receipt
-```
-**Response (`200 OK`):**
-```json
-{
-  "receiptNumber": "REC-A7CE950",
-  "paymentId": "6ab7000149dadbf46a7ce950",
-  "rideId": "6ab5000149dadbf46a7ce800",
-  "passengerId": "6ab4885449dadbf46a7ce771",
-  "driverId": "6ab4900149dadbf46a7ce780",
-  "totalAmount": 992.0,
-  "currency": "LKR",
-  "paymentMethod": "CREDIT_CARD",
-  "paymentStatus": "COMPLETED",
-  "transactionReference": "TXN-RL-7A9B3E1F",
-  "fareBreakdown": {
-    "baseFare": 100.0,
-    "distanceCharge": 425.0,
-    "timeCharge": 110.0,
-    "surgeMultiplier": 1.2,
-    "tollCharges": 300.0,
-    "discountAmount": 50.0,
-    "totalFare": 992.0,
-    "currency": "LKR"
-  },
-  "issuedAt": "2026-09-24T16:37:00"
-}
-```
-
----
-
-## 💡 Viva Q&A Reference for IT3130
-
-**Q1: What is the difference between estimated fare and final fare?**  
-> **A:** Estimated fare is computed before the ride based on estimated distance and duration. Final fare is calculated after trip completion incorporating actual GPS distance, actual elapsed minutes, real-time demand surge multiplier, expressway toll fees, and promotional discounts.
-
-**Q2: How does the payment lifecycle work in this microservice?**  
-> **A:** When a ride ends, a `PENDING` payment is created via `POST /api/payments`. When the rider confirms card/cash settlement, `POST /api/payments/{id}/process` validates the payment, marks it `COMPLETED`, generates a unique `transactionReference`, and enables digital receipt retrieval via `GET /api/payments/{id}/receipt`.
+## 📄 License & Academic Integrity
+Developed as part of the **IT3130 Application Development** course module at SLIIT. All code submitted is original group work in accordance with the SLIIT Academic Honesty Policy.
