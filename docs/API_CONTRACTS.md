@@ -4,7 +4,7 @@ This document defines the official synchronous REST API contracts between RideLi
 
 ---
 
-## 1. Account Service (Port: 8080 Â· Owner: Sasiru Â· IT24200741)
+## 1. Account Service (Port: 8080 Â· Owner: Liyanage S.N Â· IT24200741)
 
 ### 1.1 Register User
 - **Method:** `POST`
@@ -129,7 +129,7 @@ This document defines the official synchronous REST API contracts between RideLi
 
 ---
 
-## 2. Driver & Vehicle Service (Port: 8081 Â· Owner: Randi Sithma Â· IT24104341)
+## 2. Driver & Vehicle Service (Port: 8081 Â· Owner: Haputhanthiri R.S Â· IT24104341)
 
 ### 2.1 Update Driver Status
 - **Method:** `PATCH`
@@ -191,7 +191,7 @@ This document defines the official synchronous REST API contracts between RideLi
 
 ---
 
-## 3. Ride Management Service (Port: 8082 Â· Owner: Bhanuka Â· IT24103298)
+## 3. Ride Management Service (Port: 8082 Â· Owner: Bhanuka U.G Â· IT24103298)
 
 ### 3.1 Request a Ride
 - **Method:** `POST`
@@ -250,7 +250,7 @@ This document defines the official synchronous REST API contracts between RideLi
 
 ---
 
-## 4. Fare & Payment Service (Port: 8083 Â· Owner: Nethmini Perera Â· IT24104027)
+## 4. Fare & Payment Service (Port: 8083 Â· Owner: Perera P.N.D Â· IT24104027)
 
 ### 4.1 Estimate Fare
 - **Method:** `POST`

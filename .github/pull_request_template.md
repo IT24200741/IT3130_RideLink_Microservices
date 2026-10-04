@@ -2,7 +2,7 @@
 
 ### 👤 Author
 - **Service Name:** [e.g. Account Service / Driver Service / Ride Service / Payment Service]
-- **Owner:** [Sasiru (IT24200741) / Randi Sithma (IT24104341) / Bhanuka (IT24103298) / Nethmini Perera (IT24104027)]
+- **Owner:** [Liyanage S.N (IT24200741) / Haputhanthiri R.S (IT24104341) / Bhanuka U.G (IT24103298) / Perera P.N.D (IT24104027)]
 - **Feature Branch:** [e.g. feature/account-service]
 
 ---

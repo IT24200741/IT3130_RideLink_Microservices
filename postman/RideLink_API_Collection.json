@@ -7,7 +7,7 @@
   },
   "item": [
     {
-      "name": "1. Account Service (Port 8080 - Sasiru IT24200741)",
+      "name": "1. Account Service (Port 8080 - Liyanage S.N IT24200741)",
       "item": [
         {
           "name": "Health Check",
@@ -81,7 +81,7 @@
       ]
     },
     {
-      "name": "2. Driver & Vehicle Service (Port 8081 - Randi Sithma IT24104341)",
+      "name": "2. Driver & Vehicle Service (Port 8081 - Haputhanthiri R.S IT24104341)",
       "item": [
         {
           "name": "Health Check",
@@ -117,7 +117,7 @@
       ]
     },
     {
-      "name": "3. Ride Management Service (Port 8082 - Bhanuka IT24103298)",
+      "name": "3. Ride Management Service (Port 8082 - Bhanuka U.G IT24103298)",
       "item": [
         {
           "name": "Health Check",
@@ -141,7 +141,7 @@
       ]
     },
     {
-      "name": "4. Fare & Payment Service (Port 8083 - Nethmini Perera IT24104027)",
+      "name": "4. Fare & Payment Service (Port 8083 - Perera P.N.D IT24104027)",
       "item": [
         {
           "name": "Health Check",

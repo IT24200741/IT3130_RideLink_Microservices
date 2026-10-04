@@ -12,7 +12,7 @@
 	<artifactId>account-service</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<name>account-service</name>
-	<description>RideLink account-service - Owner: Sasiru (IT24200741)</description>
+	<description>RideLink account-service - Owner: Liyanage S.N (IT24200741)</description>
 
 	<properties>
 		<java.version>17</java.version>

@@ -18,10 +18,10 @@ Each team member is exclusively responsible for the design, implementation, auto
 | # | Application / Microservice | Port | Owner & Student ID | Key Responsibilities |
 |---|---|---|---|---|
 | **0** | **API Gateway** | `8080` | *Joint Infrastructure* | Single Entry Point, Request Routing, Reverse Proxy, Cross-Cutting Concerns. |
-| **1** | **Account Service** | `8081` | **Sasiru** (`IT24200741`) | Passenger & Driver registration, BCrypt password hashing, JWT token authentication, Role-based access control (Passenger, Driver, Admin), profile management, account status management. |
-| **2** | **Driver & Vehicle Service** | `8082` | **Randi Sithma** (`IT24104341`) | Driver operational profiles, vehicle registration, Availability status toggle (`AVAILABLE`, `BUSY`, `OFFLINE`), simulated GPS tracking, driver discovery query. |
-| **3** | **Ride Management Service** | `8083` | **Bhanuka** (`IT24103298`) | Ride lifecycle orchestrator (`REQUESTED` -> `ACCEPTED` -> `IN_PROGRESS` -> `COMPLETED`), dispatching to Driver Service, status state machine validation. |
-| **4** | **Fare & Payment Service** | `8084` | **Nethmini Perera** (`IT24104027`) | Fare estimation algorithm (Base + Distance + Time), final fare calculation upon ride completion, payment simulation (Success/Failed), digital receipt generation. |
+| **1** | **Account Service** | `8081` | **Liyanage S.N** (`IT24200741`) | Passenger & Driver registration, BCrypt password hashing, JWT token authentication, Role-based access control (Passenger, Driver, Admin), profile management, account status management. |
+| **2** | **Driver & Vehicle Service** | `8082` | **Haputhanthiri R.S** (`IT24104341`) | Driver operational profiles, vehicle registration, Availability status toggle (`AVAILABLE`, `BUSY`, `OFFLINE`), simulated GPS tracking, driver discovery query. |
+| **3** | **Ride Management Service** | `8083` | **Bhanuka U.G** (`IT24103298`) | Ride lifecycle orchestrator (`REQUESTED` -> `ACCEPTED` -> `IN_PROGRESS` -> `COMPLETED`), dispatching to Driver Service, status state machine validation. |
+| **4** | **Fare & Payment Service** | `8084` | **Perera P.N.D** (`IT24104027`) | Fare estimation algorithm (Base + Distance + Time), final fare calculation upon ride completion, payment simulation (Success/Failed), digital receipt generation. |
 
 ---
 
@@ -36,22 +36,22 @@ flowchart TD
     end
 
     subgraph S1["1. Account Service (Port 8081)"]
-        Sasiru["Sasiru (IT24200741)"]
+        Sasiru["Liyanage S.N (IT24200741)"]
         DB1[("accountdb (MongoDB)")]
     end
     
     subgraph S2["2. Driver and Vehicle Service (Port 8082)"]
-        Randi["Randi Sithma (IT24104341)"]
+        Randi["Haputhanthiri R.S (IT24104341)"]
         DB2[("driverdb (MongoDB)")]
     end
 
     subgraph S3["3. Ride Management Service (Port 8083)"]
-        Bhanuka["Bhanuka (IT24103298)"]
+        Bhanuka["Bhanuka U.G (IT24103298)"]
         DB3[("ridedb (MongoDB)")]
     end
     
     subgraph S4["4. Fare and Payment Service (Port 8084)"]
-        Nethmini["Nethmini Perera (IT24104027)"]
+        Nethmini["Perera P.N.D (IT24104027)"]
         DB4[("paymentdb (MongoDB)")]
     end
 
@@ -104,16 +104,16 @@ Using the included Maven Wrapper:
 Run services in separate terminal windows:
 
 ```bash
-# Terminal 1: Account Service (Port 8081 - Sasiru IT24200741)
+# Terminal 1: Account Service (Port 8081 - Liyanage S.N IT24200741)
 .\mvnw.cmd spring-boot:run -pl services/account-service
 
-# Terminal 2: Driver & Vehicle Service (Port 8082 - Randi Sithma IT24104341)
+# Terminal 2: Driver & Vehicle Service (Port 8082 - Haputhanthiri R.S IT24104341)
 .\mvnw.cmd spring-boot:run -pl services/driver-service
 
-# Terminal 3: Ride Management Service (Port 8083 - Bhanuka IT24103298)
+# Terminal 3: Ride Management Service (Port 8083 - Bhanuka U.G IT24103298)
 .\mvnw.cmd spring-boot:run -pl services/ride-service
 
-# Terminal 4: Fare & Payment Service (Port 8084 - Nethmini Perera IT24104027)
+# Terminal 4: Fare & Payment Service (Port 8084 - Perera P.N.D IT24104027)
 .\mvnw.cmd spring-boot:run -pl services/payment-service
 ```
 

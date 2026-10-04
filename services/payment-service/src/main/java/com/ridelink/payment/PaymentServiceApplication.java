@@ -20,7 +20,7 @@ public class PaymentServiceApplication {
         return Map.of(
             "status", "UP",
             "service", "payment-service",
-            "owner", "Nethmini Perera (IT24104027)"
+            "owner", "Perera P.N.D (IT24104027)"
         );
     }
 }

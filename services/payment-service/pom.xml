@@ -12,7 +12,7 @@
 	<artifactId>payment-service</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<name>payment-service</name>
-	<description>RideLink payment-service - Owner: Nethmini Perera (IT24104027)</description>
+	<description>RideLink payment-service - Owner: Perera P.N.D (IT24104027)</description>
 
 	<properties>
 		<java.version>17</java.version>
