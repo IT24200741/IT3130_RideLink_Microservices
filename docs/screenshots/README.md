@@ -2,7 +2,7 @@
 
 Save all evidence screenshots in their respective folders here. These will be embedded directly into the final 8-12 page Technical Report PDF (IT3130 AD Assignment).
 
-## 1. Per-Service Evidence (Sasiru, Randi, Bhanuka, Nethmini)
+## 1. Per-Service Evidence (Liyanage S.N, Haputhanthiri R.S, Bhanuka U.G, Perera P.N.D)
 For each of your assigned microservices, save screenshots of:
 - [ ] **Unit Tests Passing:** Terminal output of `./mvnw test -pl services/<service-name>` showing all test suites passing green (`BUILD SUCCESS`).
 - [ ] **Swagger/OpenAPI UI:** Browser screenshot of `http://localhost:808X/swagger-ui.html` showing all documented REST endpoints.

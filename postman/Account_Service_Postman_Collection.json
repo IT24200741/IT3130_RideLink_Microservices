@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "account-service-complete-tests-it3130",
     "name": "RideLink - Account Service Complete Test Suite (Port 8080)",
-    "description": "Full Positive and Negative test collection for Account & Authentication Service (Sasiru IT24200741). Covers Happy Paths, Edge Cases, Token Auth, and Error Handling (400, 401, 403, 404, 409).",
+    "description": "Full Positive and Negative test collection for Account & Authentication Service (Liyanage S.N IT24200741). Covers Happy Paths, Edge Cases, Token Auth, and Error Handling (400, 401, 403, 404, 409).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [

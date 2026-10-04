@@ -21,7 +21,7 @@ public class AccountServiceApplication {
         return Map.of(
             "status", "UP",
             "service", "account-service",
-            "owner", "Sasiru (IT24200741)"
+            "owner", "Liyanage S.N (IT24200741)"
         );
     }
 }

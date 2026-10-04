@@ -20,7 +20,7 @@ public class RideServiceApplication {
         return Map.of(
             "status", "UP",
             "service", "ride-service",
-            "owner", "Bhanuka (IT24103298)"
+            "owner", "Bhanuka U.G (IT24103298)"
         );
     }
 }
