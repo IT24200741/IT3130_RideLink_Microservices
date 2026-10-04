@@ -63,17 +63,28 @@ public class RideService {
         return RideResponse.fromEntity(savedRide);
     }
 
-     public List<RideResponse> getRides(String callerId, String callerRole) {
+       public List<RideResponse> getRides(String callerId, String callerRole) {
+        if (callerRole == null && (callerId == null || callerId.isBlank())) {
+            throw new UnauthorizedAccessException("Authentication required to view rides.");
+        }
+
         List<Ride> rides;
         if ("ADMIN".equalsIgnoreCase(callerRole)) {
-            rides = rideRepository.findAll();
-        } else if ("DRIVER".equalsIgnoreCase(callerRole) && callerId != null) {
+            if (callerId != null && !callerId.isBlank()) {
+                rides = rideRepository.findByPassengerId(callerId);
+            } else {
+                rides = rideRepository.findAll();
+            }
+        } else if ("DRIVER".equalsIgnoreCase(callerRole) && callerId != null && !callerId.isBlank()) {
             rides = rideRepository.findByDriverID(callerId);
+        } else if ("PASSENGER".equalsIgnoreCase(callerRole) && callerId != null && !callerId.isBlank()) {
+            rides = rideRepository.findByPassengerId(callerId);
         } else if (callerId != null && !callerId.isBlank()) {
             rides = rideRepository.findByPassengerId(callerId);
         } else {
-            rides = rideRepository.findAll();
+            throw new UnauthorizedAccessException("You are not authorized to view all rides.");
         }
+
         return rides.stream().map(RideResponse::fromEntity).collect(Collectors.toList());
     }
     public List<RideResponse> getAllRides() {

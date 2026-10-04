@@ -17,7 +17,7 @@ public class DriverClient {
 
     private final RestClient restClient;
 
-    public DriverClient(@Value("${services.driver.url:http://localhost:8081}") String driverServiceUrl) {
+    public DriverClient(@Value("${services.driver.url:http://localhost:8082}") String driverServiceUrl) {
         this.restClient = RestClient.builder()
                 .baseUrl(driverServiceUrl)
                 .build();

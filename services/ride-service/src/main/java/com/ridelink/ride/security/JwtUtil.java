@@ -12,7 +12,7 @@ import java.security.Key;
 @Component
 public class JwtUtil {
 
-@Value("${jwt.secret:RideLinkSecretKeyForJwtAuthentication2026SecureKey}")
+@Value("${security.jwt.secret:ridelink-account-service-super-secret-key-2026-it3130}")
     private String jwtSecret;
     private Key getSigningKey() {
         byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);

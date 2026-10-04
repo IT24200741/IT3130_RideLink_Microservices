@@ -4,6 +4,7 @@ import com.ridelink.ride.dto.ApiResponse;
 import com.ridelink.ride.dto.CreateRideRequest;
 import com.ridelink.ride.dto.RideResponse;
 import com.ridelink.ride.dto.UpdateStatusRequest;
+import com.ridelink.ride.exception.UnauthorizedAccessException;
 import com.ridelink.ride.security.JwtUtil;
 import com.ridelink.ride.service.RideService;
 import jakarta.validation.Valid;
@@ -55,7 +56,7 @@ public class RideController {
         );
     }
 
-            @Operation(summary = "Get all rides", description = "Retrieves rides filtered by caller role (passengers see own rides, drivers see assigned rides, admin sees all)")
+    @Operation(summary = "Get all rides", description = "Retrieves rides filtered by caller role (passengers see own rides, drivers see assigned rides, admin sees all)")
     @GetMapping
     public ResponseEntity<ApiResponse<List<RideResponse>>> getAllRides(
             @RequestParam(required = false) String passengerId,
@@ -63,11 +64,25 @@ public class RideController {
             @RequestHeader(value = "X-User-Id", required = false) String headerUserId,
             @RequestHeader(value = "X-User-Role", required = false) String headerRole) {
         CallerContext caller = extractCaller(authHeader, headerUserId, headerRole);
-        String targetPassengerId = (passengerId != null && !passengerId.isBlank()) ? passengerId : caller.userId();
+
+        
+        if ((caller.userId() == null || caller.userId().isBlank()) && (caller.role() == null || caller.role().isBlank())) {
+            throw new UnauthorizedAccessException("Authentication required to view rides.");
+        }
+
+        
+        if ("PASSENGER".equalsIgnoreCase(caller.role())) {
+            if (passengerId != null && !passengerId.isBlank() && !passengerId.equals(caller.userId())) {
+                throw new UnauthorizedAccessException("Passengers are only permitted to view their own rides.");
+            }
+        }
+
+        String targetPassengerId = ("ADMIN".equalsIgnoreCase(caller.role()) && passengerId != null && !passengerId.isBlank()) 
+                ? passengerId : caller.userId();
+
         List<RideResponse> rides = rideService.getRides(targetPassengerId, caller.role());
         return ResponseEntity.ok(ApiResponse.success(rides));
     }
-
          @Operation(summary = "Get ride by ID", description = "Fetches ride details with passenger ownership verification")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<RideResponse>> getRideById(
