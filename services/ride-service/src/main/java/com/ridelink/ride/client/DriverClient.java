@@ -31,15 +31,20 @@ public class DriverClient {
 
     public List<EligibleDriverResponse> queryEligibleDrivers(QueryEligibleDriversRequest request) {
         try {
-            DriverApiResponse response = restClient.post()
-                    .uri("/api/v1/drivers/query-eligible")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(request)
+            // Randi's actual endpoint: GET /api/drivers/eligible
+            List<EligibleDriverResponse> response = restClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/api/drivers/eligible")
+                            .queryParam("latitude", request.pickupLat())
+                            .queryParam("longitude", request.pickupLng())
+                            .queryParam("radiusKm", request.maxRadiusKm())
+                            .queryParam("vehicleType", request.vehicleType())
+                            .build())
                     .retrieve()
-                    .body(new ParameterizedTypeReference<DriverApiResponse>() {});
+                    .body(new ParameterizedTypeReference<List<EligibleDriverResponse>>() {});
 
-            if (response != null && response.data() != null) {
-                return response.data();
+            if (response != null) {
+                return response;
             }
             return Collections.emptyList();
 
