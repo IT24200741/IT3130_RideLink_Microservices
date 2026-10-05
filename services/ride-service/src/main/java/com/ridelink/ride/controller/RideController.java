@@ -77,8 +77,9 @@ public class RideController {
             }
         }
 
-        String targetPassengerId = ("ADMIN".equalsIgnoreCase(caller.role()) && passengerId != null && !passengerId.isBlank()) 
-                ? passengerId : caller.userId();
+        String targetPassengerId = "ADMIN".equalsIgnoreCase(caller.role()) 
+        ? (passengerId != null && !passengerId.isBlank() ? passengerId : null) 
+        : caller.userId();
 
         List<RideResponse> rides = rideService.getRides(targetPassengerId, caller.role());
         return ResponseEntity.ok(ApiResponse.success(rides));
